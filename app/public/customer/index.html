@@ -1,0 +1,42 @@
+<title>Laurelshield · Customer Portal</title>
+<link rel="icon" type="image/png" href="/img/favicon-32.png">
+<link rel="apple-touch-icon" href="/img/favicon-180.png">
+<link rel="stylesheet" href="/css/style.css">
+<script>(function(){try{if(localStorage.getItem('ls-theme')==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}})();</script>
+<div class="topbar">
+  <div class="brand"><img class="logo" src="/img/logo-topbar.png" alt="" /><span class="word">Laurelshield</span><span class="tagline">Customer Portal</span></div>
+  <div class="who"><span id="whoami"></span><button class="logout" id="logoutBtn">Sign out</button></div>
+</div>
+<div class="shell">
+  <div class="sidebar">
+    <button class="navitem active" data-section="overview">Overview</button>
+    <button class="navitem" data-section="scope">Scope &amp; Assets</button>
+    <button class="navitem" data-section="evidence">Evidence &amp; Connectors</button>
+    <button class="navitem" data-section="controls">Control Results</button>
+    <button class="navitem" data-section="suppliers">Supplier Graph</button>
+    <button class="navitem" data-section="remediation">Remediation</button>
+    <button class="navitem" data-section="passport">Cyber Risk Passport</button>
+    <button class="navitem" data-section="sharing">Sharing &amp; Consent</button>
+    <button class="navitem" data-section="appeals">Appeals</button>
+    <button class="navitem" data-section="audit">Audit Trail</button>
+    <button class="navitem" data-section="help">Help</button>
+    <button class="navitem" data-section="account">Account Settings</button>
+  </div>
+  <div class="main">
+    <div class="section active" id="sec-overview"></div>
+    <div class="section" id="sec-scope"></div>
+    <div class="section" id="sec-evidence"></div>
+    <div class="section" id="sec-controls"></div>
+    <div class="section" id="sec-suppliers"></div>
+    <div class="section" id="sec-remediation"></div>
+    <div class="section" id="sec-passport"></div>
+    <div class="section" id="sec-sharing"></div>
+    <div class="section" id="sec-appeals"></div>
+    <div class="section" id="sec-audit"></div>
+    <div class="section" id="sec-help"></div>
+    <div class="section" id="sec-account"></div>
+  </div>
+</div>
+<div id="toast"></div>
+<script src="/js/api.js"></script>
+<script src="/customer/app.js"></script>

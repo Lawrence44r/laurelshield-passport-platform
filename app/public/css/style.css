@@ -1,0 +1,279 @@
+:root {
+  /* Ink scale: warm charcoal neutrals drawn from the mark's black field,
+     not a generic blue-tinted "corporate navy". Used for chrome, text,
+     and borders throughout. */
+  --ink-900: #201d1b;
+  --ink-800: #322e2a;
+  --ink-700: #4a4540;
+  --ink-600: #5f5952;
+  --ink-500: #766f65;
+  --ink-100: #ddd6ca;
+  --ink-50:  #f5f2ec;
+  --paper:   #ffffff;
+
+  /* Chrome: the cloud-console blue used for structural surfaces (top bar,
+     table headers, the login hero panel) - never for links or buttons,
+     so it reads as "frame," not "action." */
+  --chrome:      #0969b3;
+  --chrome-dark: #075a94;
+
+  /* Signature accent: a deep, desaturated wine-red carried from the logo's
+     checkmark. Deliberately darker and cooler than the danger/critical
+     red below so a primary button never reads as an alarm. This is the
+     interface's one action color - every link, button, and active state
+     uses it, and it never appears on the chrome surfaces above. */
+  --brand:        #8f2438;
+  --brand-dark:   #6e1c2b;
+  --brand-bright: #c94a5f; /* for use on dark surfaces, e.g. the hero panel */
+  --brand-tint:   #f7e9eb;
+
+  /* Status semantics: independent hues so verified/warning/critical never
+     get confused with the brand color itself. */
+  --success:      #2f6b4a;
+  --success-tint: #e8f2ec;
+  --warning:      #8a5c10;
+  --warning-tint: #faf1dd;
+  --danger:       #c0392b;
+  --danger-tint:  #fbe9e5;
+
+  /* Segoe UI everywhere - matches Azure Portal's own font stack exactly,
+     for every heading, label, button, and the wordmark itself. Monospace
+     is reserved only for literal technical identifiers (control codes,
+     passport codes), the same way Azure itself uses a mono face for
+     resource IDs and code, never for prose or UI chrome. */
+  --font-base: "Segoe UI", "Segoe UI Web (West European)", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif;
+  --font-mono: Consolas, "Cascadia Mono", "Courier New", monospace;
+}
+
+/* ---- Dark mode: true solid black, not a dark grey. Text is bright white,
+   every accent color is brightened so it still reads clearly against pure
+   black rather than looking muddy. Toggled via data-theme on <html>,
+   set/persisted by setTheme()/getTheme() in js/api.js. ---- */
+:root[data-theme="dark"] {
+  --ink-900: #ffffff;   /* primary text: bright white */
+  --ink-800: #f2f2f2;
+  --ink-700: #dcdcdc;
+  --ink-600: #b8b8b8;
+  --ink-500: #969696;   /* muted text */
+  --ink-100: #2c2c2c;   /* borders */
+  --ink-50:  #000000;   /* page background: solid black */
+  --paper:   #0d0d0d;   /* card/surface background, just enough lift off pure black to show edges */
+
+  --chrome:      #1e88e5;
+  --chrome-dark: #1565b0;
+
+  --brand:        #ff4d6d;
+  --brand-dark:   #e0334f;
+  --brand-bright: #ff8a9e;
+  --brand-tint:   #33131a;
+
+  --success:      #4fd08a;
+  --success-tint: #0e2a1c;
+  --warning:      #f0b53d;
+  --warning-tint: #332708;
+  --danger:       #ff6a55;
+  --danger-tint:  #34140f;
+}
+:root[data-theme="dark"] tr:nth-child(even) td { background: #131313; }
+:root[data-theme="dark"] .login-card,
+:root[data-theme="dark"] .card { box-shadow: none; }
+:root[data-theme="dark"] input[type=text], :root[data-theme="dark"] input[type=email],
+:root[data-theme="dark"] input[type=password], :root[data-theme="dark"] input[type=number],
+:root[data-theme="dark"] select, :root[data-theme="dark"] textarea { color: var(--ink-900); }
+:root[data-theme="dark"] .demo-accounts code { color: var(--ink-900); }
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--font-base);
+  background: var(--ink-50);
+  color: var(--ink-900);
+  font-size: 14px;
+  line-height: 1.45;
+}
+code, kbd, pre, .mono { font-family: var(--font-mono); }
+a { color: var(--brand); }
+h1, h2, h3, h4 { color: var(--ink-900); margin: 0 0 8px; font-weight: 600; }
+h1 { font-size: 22px; font-weight: 600; }
+h2 { font-size: 17px; }
+h3 { font-size: 14px; letter-spacing: 0.02em; text-transform: uppercase; color: var(--ink-500); }
+p { margin: 0 0 8px; }
+.muted { color: var(--ink-500); }
+.small { font-size: 12px; }
+
+/* ---- Layout shell ---- */
+.topbar {
+  background: var(--chrome);
+  color: var(--paper);
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.topbar .brand { display: flex; align-items: center; gap: 10px; }
+.topbar .brand img.logo { height: 28px; width: 28px; display: block; }
+.topbar .brand .word { font-weight: 700; font-size: 19px; }
+.topbar .brand .tagline { font-size: 11px; color: #cfe6f7; }
+.topbar .who { font-size: 12px; color: #dceefb; display: flex; align-items: center; gap: 12px; }
+.topbar button.logout {
+  background: transparent; border: 1px solid rgba(255,255,255,0.35); color: #eaf5fc; border-radius: 4px;
+  padding: 5px 10px; cursor: pointer; font-size: 12px;
+}
+.topbar button.logout:hover { background: var(--chrome-dark); }
+
+.shell { display: flex; min-height: calc(100vh - 48px); }
+.sidebar {
+  width: 220px; background: var(--paper); border-right: 1px solid var(--ink-100);
+  padding: 16px 0; flex-shrink: 0;
+}
+.sidebar button.navitem {
+  display: block; width: 100%; text-align: left; background: none; border: none;
+  padding: 10px 20px; font-size: 13px; color: var(--ink-600); cursor: pointer; border-left: 3px solid transparent;
+}
+.sidebar button.navitem:hover { background: var(--brand-tint); }
+.sidebar button.navitem.active { border-left-color: var(--brand); color: var(--ink-900); font-weight: 600; background: var(--brand-tint); }
+
+.main { flex: 1; padding: 22px 28px; max-width: 1180px; }
+.section { display: none; }
+.section.active { display: block; }
+
+/* ---- Cards / tables ---- */
+.card {
+  background: var(--paper); border: 1px solid var(--ink-100); border-radius: 6px;
+  padding: 16px 18px; margin-bottom: 16px;
+}
+.card-row { display: flex; gap: 16px; flex-wrap: wrap; }
+.card-row .card { flex: 1; min-width: 200px; }
+.stat { font-size: 26px; font-weight: 700; color: var(--ink-900); }
+.stat-label { font-size: 12px; color: var(--ink-500); text-transform: uppercase; letter-spacing: 0.03em; }
+
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { background: var(--chrome); color: var(--paper); text-align: left; padding: 8px 10px; font-weight: 600; }
+td { padding: 7px 10px; border-bottom: 1px solid var(--ink-100); vertical-align: top; }
+tr:nth-child(even) td { background: #faf9f5; }
+.table-wrap { overflow-x: auto; }
+
+/* ---- Badges ---- */
+.badge {
+  display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.02em;
+}
+.badge.verified, .badge.approved, .badge.closed, .badge.pass, .badge.ready, .badge.low { background: var(--success-tint); color: var(--success); }
+.badge.conditional, .badge.pending, .badge.reverification_pending, .badge.evidence_expiring, .badge.high { background: var(--warning-tint); color: var(--warning); }
+.badge.material_gap, .badge.rejected, .badge.revoked, .badge.gap, .badge.error, .badge.critical { background: var(--danger-tint); color: var(--danger); }
+.badge.expired, .badge.not_assessed, .badge.open, .badge.draft, .badge.not_applicable, .badge.active, .badge.medium { background: var(--ink-50); color: var(--ink-600); }
+.ecl-pill {
+  display: inline-block; background: var(--brand-tint); color: var(--brand); border-radius: 4px;
+  padding: 1px 6px; font-size: 11px; font-weight: 700;
+}
+
+/* ---- Buttons / forms ---- */
+button.btn {
+  background: var(--brand); color: var(--paper); border: none; border-radius: 4px;
+  padding: 7px 14px; font-size: 13px; cursor: pointer; font-weight: 600;
+}
+button.btn:hover { background: var(--brand-dark); }
+button.btn.secondary { background: var(--paper); color: var(--ink-900); border: 1px solid var(--ink-100); }
+button.btn.secondary:hover { background: var(--brand-tint); }
+button.btn.danger { background: var(--danger); }
+button.btn.danger:hover { background: #9c2f22; }
+button.btn.small { padding: 4px 9px; font-size: 12px; }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+input[type=text], input[type=email], input[type=password], input[type=number], select, textarea {
+  width: 100%; padding: 7px 9px; border: 1px solid var(--ink-100); border-radius: 4px; font-size: 13px;
+  font-family: inherit; background: var(--paper); color: var(--ink-900);
+}
+label { display: block; font-size: 12px; color: var(--ink-600); margin: 8px 0 3px; font-weight: 600; }
+.field-row { display: flex; gap: 12px; flex-wrap: wrap; }
+.field-row > div { flex: 1; min-width: 160px; }
+
+.callout { border-left: 4px solid var(--brand); background: var(--brand-tint); padding: 10px 14px; border-radius: 3px; margin-bottom: 14px; font-size: 13px; }
+.callout.warn { border-left-color: var(--warning); background: var(--warning-tint); }
+.callout.danger { border-left-color: var(--danger); background: var(--danger-tint); }
+
+/* ---- Login page: split panel, brand voice on one side, sign-in on the other ---- */
+.login-shell { min-height: 100vh; display: flex; }
+.login-hero {
+  flex: 1 1 55%; background: var(--chrome); color: var(--paper);
+  display: flex; align-items: center; justify-content: center; padding: 48px;
+}
+.hero-inner { max-width: 460px; }
+.login-hero img.logo { width: 56px; height: 56px; display: block; margin-bottom: 18px; }
+.login-hero .word { color: var(--paper); font-weight: 700; font-size: 30px; }
+.login-hero .tagline { color: #eaf5fc; font-size: 14px; margin: 6px 0 20px; font-weight: 600; }
+.hero-lede { color: #cfe6f7; font-size: 14px; line-height: 1.6; margin-bottom: 26px; }
+.hero-points { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 14px; }
+.hero-points li { position: relative; padding-left: 22px; font-size: 13px; color: #dceefb; line-height: 1.5; }
+.hero-points li::before { content: ""; position: absolute; left: 0; top: 5px; width: 8px; height: 8px; background: #ffffff; }
+
+.login-panel { flex: 1 1 45%; display: flex; align-items: center; justify-content: center; background: var(--ink-50); padding: 24px; }
+.login-card { background: var(--paper); border: 1px solid var(--ink-100); border-radius: 8px; padding: 34px 36px; width: 380px; box-shadow: 0 4px 24px rgba(32,29,27,0.08); }
+.login-card h1 { margin-bottom: 2px; }
+.login-card .muted { margin-bottom: 20px; }
+.login-card .err { color: var(--danger); font-size: 12px; min-height: 16px; margin-top: 6px; }
+.demo-accounts { margin-top: 18px; font-size: 11px; color: var(--ink-500); border-top: 1px solid var(--ink-100); padding-top: 12px; }
+.demo-accounts code { background: var(--ink-50); padding: 1px 4px; border-radius: 3px; }
+
+@media (max-width: 860px) {
+  .login-shell { flex-direction: column; }
+  .login-hero { padding: 32px 24px; }
+  .hero-lede, .hero-points { display: none; }
+  .login-panel { padding: 32px 24px; }
+}
+
+/* ---- Toast ---- */
+#toast {
+  position: fixed; bottom: 18px; right: 18px; background: var(--chrome); color: white; padding: 10px 16px;
+  border-radius: 5px; font-size: 13px; opacity: 0; pointer-events: none; transition: opacity 0.2s; max-width: 340px; z-index: 100;
+}
+#toast.show { opacity: 1; }
+#toast.error { background: var(--danger); }
+
+/* ---- Passport view ---- */
+.passport-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; }
+.passport-code { font-size: 20px; font-weight: 700; color: var(--ink-900); font-family: var(--font-mono); }
+.integrity-ok { color: var(--success); font-size: 12px; font-weight: 600; }
+.integrity-bad { color: var(--danger); font-size: 12px; font-weight: 600; }
+
+.trigger-chip {
+  display: inline-block; background: var(--danger-tint); color: var(--danger); border-radius: 4px; padding: 2px 7px;
+  font-size: 11px; margin: 2px 3px 0 0;
+}
+
+.domain-heading { margin-top: 18px; }
+
+.empty-state { color: var(--ink-500); font-size: 13px; padding: 18px 0; text-align: center; }
+
+/* ---- Help content ---- */
+.card h2 { margin-top: 0; }
+.card ul, .card ol { margin: 4px 0 10px; padding-left: 22px; font-size: 13px; line-height: 1.6; }
+.card ul li, .card ol li { margin-bottom: 4px; }
+.quick-tiles a.tile { color: inherit; }
+
+/* ---- Quick-action tile grid + mini resource cards (dashboard home screens) ---- */
+.section-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-500); font-weight: 600; margin: 28px 0 14px; }
+.section-label:first-child { margin-top: 0; }
+.quick-tiles { display: flex; gap: 30px; flex-wrap: wrap; margin-bottom: 8px; }
+.quick-tiles .tile { display: flex; flex-direction: column; align-items: center; width: 92px; text-align: center; background: none; border: none; cursor: pointer; font-family: inherit; }
+.quick-tiles .tile .ico {
+  width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center;
+  margin-bottom: 8px; background: var(--brand-tint); color: var(--brand);
+}
+.quick-tiles .tile .ico svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.6; }
+.quick-tiles .tile span { font-size: 12px; color: var(--ink-700); line-height: 1.3; }
+.quick-tiles .tile:hover span { color: var(--brand); }
+
+.resource-tabs { display: flex; gap: 22px; border-bottom: 1px solid var(--ink-100); margin-bottom: 2px; }
+.resource-tabs div { font-size: 13px; padding: 8px 2px; color: var(--ink-500); }
+.resource-tabs div.active { color: var(--brand); border-bottom: 2px solid var(--brand); font-weight: 600; }
+
+.mini-cards { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; }
+.mini-cards .mini-card { display: flex; gap: 12px; align-items: flex-start; width: 270px; background: none; border: none; text-align: left; cursor: pointer; font-family: inherit; padding: 0; }
+.mini-cards .mini-card .ico {
+  width: 34px; height: 34px; border-radius: 6px; background: var(--chrome); color: var(--paper);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.mini-cards .mini-card .ico svg { width: 17px; height: 17px; stroke: currentColor; fill: none; stroke-width: 1.6; }
+.mini-cards .mini-card b { display: block; font-size: 13px; color: var(--brand); font-weight: 600; }
+.mini-cards .mini-card p { margin: 3px 0 0; font-size: 12px; color: var(--ink-500); }
