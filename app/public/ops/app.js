@@ -20,6 +20,8 @@ const ICONS = {
   sharing: '<svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><line x1="8" y1="11" x2="16" y2="7"/><line x1="8" y1="13" x2="16" y2="17"/></svg>',
   dashboard: '<svg viewBox="0 0 24 24"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>',
   arrow: '<svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>',
+  help: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.8.4-1.3 1-1.3 1.9"/><line x1="12" y1="17" x2="12" y2="17.1"/></svg>',
+  account: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
 };
 
 const RENDERERS = {
@@ -33,6 +35,7 @@ const RENDERERS = {
   catalogue: renderCatalogue,
   demo: renderDemo,
   audit: renderAudit,
+  help: renderHelp,
   account: renderAccountSettings,
 };
 
@@ -70,6 +73,7 @@ async function init() {
   document.getElementById('whoami').textContent = `${user.fullName} · ${user.role.replace('ls_', '').replace('_', ' ')}`;
   wireLogout();
   wireNav();
+  document.getElementById('accountBtn').addEventListener('click', () => goToSection('account'));
   const { controls } = await api('/api/ops/controls');
   state.controlsCatalog = controls;
   const { partners } = await api('/api/ops/partners');
@@ -442,7 +446,7 @@ async function renderAudit() {
 // ------------------------------------------------------- Account Settings
 async function renderAccountSettings() {
   const el = document.getElementById('sec-account');
-  const { mfaEnabled } = await api('/api/account/me');
+  const { mfaEnabled, recoveryCodesRemaining } = await api('/api/account/me');
   const theme = getTheme();
   el.innerHTML = `<h1>Account Settings</h1>
     <p class="muted">Preferences for your own sign-in, not shared with anyone else.</p>
@@ -468,7 +472,10 @@ async function renderAccountSettings() {
   if (mfaEnabled) {
     mfaPanel.innerHTML = `
       <p><span class="badge verified">Enabled</span> Your account requires a 6-digit code from your authenticator app at sign-in.</p>
-      <button class="btn danger small" id="mfaDisableBtn">Disable MFA</button>`;
+      <p class="small muted">${recoveryCodesRemaining} recovery code${recoveryCodesRemaining === 1 ? '' : 's'} remaining. Each one signs you in once if you ever lose access to your authenticator app.</p>
+      <button class="btn small secondary" id="mfaRegenBtn">Regenerate Recovery Codes</button>
+      <button class="btn danger small" id="mfaDisableBtn">Disable MFA</button>
+      <div id="mfaCodesReveal" style="margin-top:14px;"></div>`;
     document.getElementById('mfaDisableBtn').addEventListener('click', async () => {
       const password = prompt('Enter your password to disable MFA:');
       if (!password) return;
@@ -476,6 +483,15 @@ async function renderAccountSettings() {
         await api('/api/account/mfa/disable', { method: 'POST', body: { password } });
         toast('MFA disabled.');
         await renderAccountSettings();
+      } catch (e) { toast('Incorrect password.', true); }
+    });
+    document.getElementById('mfaRegenBtn').addEventListener('click', async () => {
+      const password = prompt('Enter your password to regenerate recovery codes (this invalidates your old ones):');
+      if (!password) return;
+      try {
+        const { recoveryCodes } = await api('/api/account/mfa/recovery-codes/regenerate', { method: 'POST', body: { password } });
+        document.getElementById('mfaCodesReveal').innerHTML = renderRecoveryCodes(recoveryCodes);
+        toast('Recovery codes regenerated.');
       } catch (e) { toast('Incorrect password.', true); }
     });
   } else {
@@ -499,13 +515,153 @@ async function renderAccountSettings() {
       document.getElementById('mfaVerifyBtn').addEventListener('click', async () => {
         const token = document.getElementById('mfaCode').value.trim();
         try {
-          await api('/api/account/mfa/verify', { method: 'POST', body: { token } });
+          const { recoveryCodes } = await api('/api/account/mfa/verify', { method: 'POST', body: { token } });
+          document.getElementById('mfaEnroll').innerHTML = `<div class="callout"><b>MFA enabled.</b></div>` + renderRecoveryCodes(recoveryCodes);
           toast('MFA enabled.');
-          await renderAccountSettings();
         } catch (e) { toast('That code did not match. Try the current code from your app.', true); }
       });
     });
   }
+}
+
+function renderRecoveryCodes(codes) {
+  return `<div class="callout warn">
+    <p><b>Save these recovery codes now.</b> Each one lets you sign in once if you lose access to your authenticator app. They will not be shown again.</p>
+    <div class="table-wrap"><table>${codes.map(c => `<tr><td class="mono">${c}</td></tr>`).join('')}</table></div>
+  </div>`;
+}
+
+// ----------------------------------------------------------------- Help
+const HELP_TOPICS = [
+  {
+    key: 'dashboard', icon: 'dashboard', title: 'Dashboard',
+    purpose: 'A portfolio-wide snapshot across every customer organization Laurelshield assures, plus quick access to your own working queues.',
+    sees: [
+      'Quick Actions: one-click tiles to every queue and tool.',
+      'Portfolio Summary: customer organizations, assurance boundaries, active passports, pending verifications, re-verification queue, and open appeals.',
+      'Recent Activity: the latest entries from the full audit log (administrators only).',
+    ],
+    steps: [
+      'Check Pending Verifications and Re-verification Queue first: these are your working queues.',
+      'Use a Quick Actions tile to jump straight into any queue or tool.',
+    ],
+    tip: 'A growing gap between Verification Queue and Re-verification Queue over several days usually means a bottleneck on one side of the separation-of-duties wall: assessors proposing faster than decision officers can confirm, or vice versa.',
+  },
+  {
+    key: 'verification', icon: 'check', title: 'Verification Queue',
+    purpose: 'Stage 5 of the assurance lifecycle: manual and document evidence waiting to become a verified claim.',
+    sees: [
+      'Each pending item: customer org, scope, control, proposed ECL, and effectiveness.',
+      'Assess (Assessor/Admin) and Approve/Reject (Decision Officer/Admin) actions.',
+    ],
+    steps: [
+      'As Assessor: open the item, review the submitted evidence, set an ECL (0-5) and effectiveness, add notes, and click Assess.',
+      'As Decision Officer: review the assessor\'s proposed ECL and notes, then Approve (this issues a signed assurance claim) or Reject.',
+    ],
+    warning: 'This separation is structural, not a courtesy. An assessor can never approve their own assessment; only a Decision Officer or Admin can finalize the decision. Do not treat Approve as a rubber stamp on whatever the assessor proposed, actually check it.',
+  },
+  {
+    key: 'reverification', icon: 'reverify', title: 'Re-verification Queue',
+    purpose: 'Stage 8: confirms a customer\'s "mark remediated" claim before the finding is allowed to actually close.',
+    sees: ['Each pending item: customer org, scope, control, and the original finding description.'],
+    steps: [
+      'Review the remediation evidence the customer submitted for this finding.',
+      'If it genuinely resolves the finding, click Confirm Closure. This issues a fresh ECL-2 assurance claim and closes the remediation item.',
+    ],
+    warning: 'This queue exists specifically to prevent self-graded remediation. Someone independent of the original fix must confirm it, every time, even when it looks routine.',
+  },
+  {
+    key: 'appeals', icon: 'appeal', title: 'Appeals',
+    purpose: 'Independent review when a customer disagrees with a verification decision.',
+    steps: [
+      'Read the customer\'s stated reason and the original verification it references.',
+      'Decision Officer or Admin: click Uphold (the original decision stands) or Overturn (the finding is corrected), and add resolution notes explaining why.',
+    ],
+    tip: 'Resolution notes matter. They become part of the permanent record the customer can see, and a future appeal on a similar control may reference this one.',
+  },
+  {
+    key: 'partners', icon: 'partners', title: 'Partners &amp; Requirements Graph',
+    purpose: 'The confidential Carrier Requirements Graph: Laurelshield\'s highest-value trade secret. Administrator access only.',
+    sees: ['Registered broker and carrier partners.', 'For each, the mapping from their own proprietary question wording to Laurelshield\'s canonical controls, with minimum ECL, weight, mandatory flag, and source classification.'],
+    steps: [
+      'Register a new partner with Create Partner (name and type).',
+      'Add a requirement mapping: the partner\'s own requirement code and label, the canonical control it maps to, minimum ECL, maximum evidence age, whether it\'s mandatory, its weight, and how the weighting was sourced.',
+    ],
+    warning: 'These weights, thresholds, and confidential notes must never appear in any customer-, broker-, or carrier-facing response. Only the translation engine\'s output (Pass, Conditional, Evidence Expiring, or Material Gap) is ever exposed externally. If you are ever unsure whether a field is safe to expose, assume it is not.',
+  },
+  {
+    key: 'suppliers', icon: 'suppliers', title: 'Supplier Concentration',
+    purpose: 'A portfolio-wide view of which suppliers serve more than one insured, flagging multi-policy loss exposure.',
+    sees: ['Every supplier registered by any customer, with insured count, highest criticality, and the detail of which organizations depend on it.'],
+    steps: ['Review this weekly.', 'Escalate any newly flagged concentration risk (a supplier now serving two or more insureds) to the relevant underwriting contact.'],
+  },
+  {
+    key: 'claims', icon: 'claims', title: 'Claims',
+    purpose: 'The claim evidence pack workflow: freeze a window around an incident, seal a tamper-evident manifest, and release it to the carrier handling the claim.',
+    steps: [
+      'Create Claim: scope, policy reference, incident date, affected business process and systems.',
+      'Freeze &amp; Seal Evidence Pack (Assessor/Admin): captures every evidence object, control state, and the supplier graph as of the frozen window into a hash-chained, signed manifest.',
+      'Approve (Decision Officer/Admin): confirms the pack before it can leave the building.',
+      'Release to Carrier (Decision Officer/Admin): choose the carrier partner and a release purpose.',
+    ],
+    warning: 'Approval and release are Decision Officer/Admin-only, for the same separation-of-duties reason as verification. Whoever sealed the pack should not be the only person who decides it is ready to release.',
+  },
+  {
+    key: 'catalogue', icon: 'catalogue', title: 'Controls Catalogue',
+    purpose: 'The published, vendor-neutral canonical control standard, organized by domain. Not confidential, this is Laurelshield\'s public assurance standard.',
+    tip: 'When a customer asks "why does this control exist," this screen has the objective and test procedure in Laurelshield\'s own words, useful to quote back to them directly.',
+  },
+  {
+    key: 'demo', icon: 'assurance', title: 'Continuous Assurance Tools',
+    purpose: 'Administrator-only utilities to exercise the freshness engine without waiting in real time.',
+    steps: [
+      'Run Global Freshness Sweep: expires any assurance claim whose evidence has aged past its control\'s freshness window, across the whole platform.',
+      'Simulate Evidence Drift: backdates a specific scope\'s evidence and claims by a chosen number of hours, then re-runs the sweep, useful for demonstrating how a passport degrades if evidence isn\'t refreshed.',
+    ],
+  },
+  {
+    key: 'audit', icon: 'audit', title: 'Full Audit Log',
+    purpose: 'The complete, immutable log across the entire platform. Administrator only. Each customer sees only their own scoped slice of this same log in their own portal.',
+    tip: 'If a customer disputes what happened and when, this is the authoritative record, not memory or email threads.',
+  },
+  {
+    key: 'account', icon: 'account', title: 'Account Settings',
+    purpose: 'Manage how you sign in and how the portal looks: appearance and multi-factor authentication. These are personal to your login, not shared platform configuration.',
+    sees: [
+      'Appearance: switch between Light and Dark. Saved to this browser only.',
+      'Multi-Factor Authentication: enable a second factor using any TOTP authenticator app, see how many one-time recovery codes remain, disable MFA, or generate a fresh set of recovery codes.',
+    ],
+    steps: [
+      'Open Account Settings from the gear icon next to Sign out, top right.',
+      'Under Appearance, click Light or Dark, it applies immediately.',
+      'Under Multi-Factor Authentication, click Enable MFA, scan the QR code with your authenticator app, then enter the 6-digit code to confirm.',
+      'Save the 10 recovery codes shown right after enabling. Each works once if you lose access to your authenticator app.',
+    ],
+    warning: 'Recovery codes are shown only once, at the moment they are generated. Store them somewhere safe.',
+    tip: 'Assurance Operations accounts can approve remediation closures, decide appeals, and release claim evidence to carriers. Enable MFA on every staff account, not just admins.',
+  },
+];
+
+async function renderHelp() {
+  const el = document.getElementById('sec-help');
+  el.innerHTML = `<h1>Help &amp; Documentation</h1>
+    <p class="muted">A detailed guide to every section of the Assurance Operations Console.</p>
+    <div class="card">
+      <h3>Jump to a topic</h3>
+      <div class="quick-tiles">
+        ${HELP_TOPICS.map(t => `<a class="tile" href="#help-${t.key}" style="text-decoration:none;"><div class="ico">${ICONS[t.icon]}</div><span>${t.title}</span></a>`).join('')}
+      </div>
+    </div>
+    ${HELP_TOPICS.map(t => `
+      <div class="card" id="help-${t.key}">
+        <h2>${t.title}</h2>
+        <p><b>What it's for:</b> ${t.purpose}</p>
+        ${t.sees ? `<h3>What you'll see</h3><ul>${t.sees.map(s => `<li>${s}</li>`).join('')}</ul>` : ''}
+        ${t.steps ? `<h3>How to use it</h3><ol>${t.steps.map(s => `<li>${s}</li>`).join('')}</ol>` : ''}
+        ${t.keypoint ? `<div class="callout">${t.keypoint}</div>` : ''}
+        ${t.warning ? `<div class="callout warn">${t.warning}</div>` : ''}
+        ${t.tip ? `<div class="callout"><b>Tip:</b> ${t.tip}</div>` : ''}
+      </div>`).join('')}`;
 }
 
 init().catch(e => toast(e.message, true));

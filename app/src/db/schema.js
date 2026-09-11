@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS users (
   active INTEGER NOT NULL DEFAULT 1,
   mfa_secret TEXT,
   mfa_enabled INTEGER NOT NULL DEFAULT 0,
+  mfa_recovery_codes TEXT, -- JSON array of bcrypt hashes; each consumed (removed) on use
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
@@ -293,6 +294,25 @@ CREATE TABLE IF NOT EXISTS appeals (
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   resolved_at TEXT
 );
+
+-- Enterprise SSO: one identity provider per organization ("bring your own
+-- IdP"). OIDC via Authorization Code + PKCE works with any spec-compliant
+-- provider - Okta, Microsoft Entra ID, Google Workspace, Ping, Auth0, ADFS,
+-- etc. email_domain drives discovery at login ("you@acme.example" ->
+-- look up the org whose domain is acme.example -> if SSO is enabled there,
+-- redirect to their IdP instead of asking for a local password).
+CREATE TABLE IF NOT EXISTS sso_configs (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  org_id INTEGER NOT NULL UNIQUE REFERENCES organizations(id),
+  protocol TEXT NOT NULL DEFAULT 'oidc' CHECK (protocol IN ('oidc')),
+  email_domain TEXT NOT NULL,
+  issuer_url TEXT NOT NULL,
+  client_id TEXT NOT NULL,
+  client_secret TEXT NOT NULL,
+  enabled INTEGER NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
 `;
 
 // ALTER TABLE ... ADD COLUMN for databases created before a column existed.
@@ -302,6 +322,7 @@ CREATE TABLE IF NOT EXISTS appeals (
 const MIGRATIONS = [
   `ALTER TABLE users ADD COLUMN mfa_secret TEXT`,
   `ALTER TABLE users ADD COLUMN mfa_enabled INTEGER NOT NULL DEFAULT 0`,
+  `ALTER TABLE users ADD COLUMN mfa_recovery_codes TEXT`,
 ];
 
 function applySchema(db) {

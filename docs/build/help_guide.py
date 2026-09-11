@@ -254,6 +254,47 @@ TOPICS = [
          tip="This is not a marketing claim; it is a genuine log. If a broker or carrier tells you they "
              "reviewed your evidence before a decision, this is where you can confirm it actually happened, "
              "and when."),
+    dict(num="10", key="account", title="Account Settings", shot="11-account-settings.png",
+         purpose="Manage how you sign in and how the portal looks: appearance, multi-factor authentication, "
+                 "and, if your organization has one, single sign-on. These are personal to your login, not "
+                 "shared settings for your organization.",
+         sees=[
+             "Appearance: switch between Light and Dark. This is saved to this browser only; it does not "
+             "sync to other devices or other people at your organization.",
+             "Multi-Factor Authentication: enable a second factor using any TOTP authenticator app "
+             "(Microsoft Authenticator, Google Authenticator, 1Password, Authy, and similar), see how many "
+             "one-time recovery codes you have left, disable MFA, or generate a fresh set of recovery codes.",
+             "Single Sign-On, shown only for accounts tied to an organization: configure your own identity "
+             "provider so everyone at your organization can sign in without ever having a Laurelshield "
+             "password.",
+         ],
+         steps=[
+             'Open Account Settings from the gear icon next to "Sign out," top right of every page.',
+             "Under Appearance, click Light or Dark. The whole portal switches instantly; there is no save "
+             "button.",
+             'Under Multi-Factor Authentication, click "Enable MFA," scan the QR code with your '
+             "authenticator app (or enter the setup key by hand), then type the 6-digit code it generates "
+             "to confirm.",
+             "Immediately after enabling MFA, save the 10 recovery codes shown on screen somewhere safe, "
+             "for example a password manager. Each one signs you in exactly once if you ever lose access "
+             "to your authenticator app.",
+             'If your organization runs its own identity provider, fill in Single Sign-On: your email '
+             'domain, issuer URL, client ID, and client secret, then click "Test Configuration" to confirm '
+             "Laurelshield can actually reach it before saving.",
+         ],
+         warning="Recovery codes and the MFA setup key are shown only once, at the moment they are "
+                 "generated. If you lose them and also lose your authenticator device, an administrator "
+                 "will need to help you back into your account.",
+         keypoint="Single sign-on signs in an existing Laurelshield account matched by email address; it "
+                   "does not create new accounts or grant roles by itself. Who has an account at all, and "
+                   "what role they hold, is still decided separately when the account is provisioned.",
+         tip="Enabling MFA is one of the highest-value five minutes you can spend in this portal: it "
+             "protects the same login that can issue, share, and revoke your organization's Cyber Risk "
+             "Passport.",
+         shot2="12-dark-mode.png",
+         shot2_caption="Figure 10.2: The Overview screen in Dark mode, switched on from Account Settings. "
+                        "Every heading, stat, badge, and link remains fully legible against the near-black "
+                        "background."),
 ]
 
 for topic in TOPICS:
@@ -269,6 +310,8 @@ for topic in TOPICS:
     bb.screenshot(os.path.join(SHOTS, topic["shot"]),
                    caption=f"Figure {topic['num']}.1: The {topic['title']} screen, shown here for a fully "
                            f"verified demo tenant (ABC Manufacturing Ltd.).")
+    if topic.get("shot2"):
+        bb.screenshot(os.path.join(SHOTS, topic["shot2"]), caption=topic.get("shot2_caption"))
     if topic.get("keypoint"):
         bb.keypoint(topic["keypoint"])
     if topic.get("warning"):

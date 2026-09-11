@@ -46,20 +46,34 @@ router.post('/login', loginLimiter, (req, res) => {
 
 // Second factor. Only usable after a successful password check left
 // req.session.pendingMfaUserId set (never session.userId, so requireAuth
-// continues to reject this session until this step also succeeds).
+// continues to reject this session until this step also succeeds). Accepts
+// either a live TOTP code or a one-time recovery code (for a lost device);
+// a recovery code is consumed (removed from the list) the moment it's used.
 router.post('/verify-mfa', loginLimiter, (req, res) => {
   const pendingId = req.session.pendingMfaUserId;
   if (!pendingId) return res.status(400).json({ error: 'no_pending_login' });
   const { token } = req.body || {};
   const user = db.prepare('SELECT * FROM users WHERE id = ? AND active = 1').get(pendingId);
-  if (!user || !mfa.verifyToken(user.mfa_secret, token)) {
-    auditLog.log(db, { actorUserId: pendingId, action: 'mfa_login_failed' });
-    return res.status(401).json({ error: 'invalid_code' });
+  if (!user) return res.status(401).json({ error: 'invalid_code' });
+
+  let usedRecoveryCode = false;
+  if (mfa.verifyToken(user.mfa_secret, token)) {
+    // TOTP matched, proceed.
+  } else {
+    const hashedList = user.mfa_recovery_codes ? JSON.parse(user.mfa_recovery_codes) : [];
+    const remaining = mfa.consumeRecoveryCode(hashedList, token);
+    if (remaining === null) {
+      auditLog.log(db, { actorUserId: pendingId, action: 'mfa_login_failed' });
+      return res.status(401).json({ error: 'invalid_code' });
+    }
+    db.prepare('UPDATE users SET mfa_recovery_codes = ? WHERE id = ?').run(JSON.stringify(remaining), user.id);
+    usedRecoveryCode = true;
   }
+
   delete req.session.pendingMfaUserId;
   req.session.userId = user.id;
-  auditLog.log(db, { actorUserId: user.id, action: 'login_succeeded_mfa' });
-  res.json({ user: publicUser(user) });
+  auditLog.log(db, { actorUserId: user.id, action: usedRecoveryCode ? 'login_succeeded_mfa_recovery_code' : 'login_succeeded_mfa' });
+  res.json({ user: publicUser(user), usedRecoveryCode });
 });
 
 router.post('/logout', requireAuth, (req, res) => {

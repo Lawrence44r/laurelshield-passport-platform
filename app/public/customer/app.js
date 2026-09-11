@@ -11,6 +11,7 @@ const ICONS = {
   sharing: '<svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><line x1="8" y1="11" x2="16" y2="7"/><line x1="8" y1="13" x2="16" y2="17"/></svg>',
   appeal: '<svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="15" y2="16"/></svg>',
   audit: '<svg viewBox="0 0 24 24"><path d="M4 4h16v4H4z"/><path d="M4 10h16v10H4z"/><line x1="8" y1="14" x2="14" y2="14"/></svg>',
+  account: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
 };
 
 const RENDERERS = {
@@ -56,6 +57,7 @@ async function init() {
   document.getElementById('whoami').textContent = `${user.fullName} · ${user.email}`;
   wireLogout();
   wireNav();
+  document.getElementById('accountBtn').addEventListener('click', () => goToSection('account'));
   const { org, scopes } = await api('/api/customer/org');
   state.org = org;
   document.getElementById('whoami').textContent = `${org.name} · ${user.fullName}`;
@@ -246,7 +248,7 @@ async function renderEvidence() {
     const config = JSON.parse(c.config_json);
     const isLive = config.mode === 'live';
     return `
-    <div class="card" style="background:#faf8f3;">
+    <div class="card" style="background:var(--paper-tint);">
       <div class="passport-header">
         <div><b>${escapeHtml(c.display_name)}</b> ${badge(c.status)} <span class="ecl-pill">${isLive ? 'LIVE · Microsoft Graph' : 'SIMULATED'}</span><br>
           <span class="small muted">Last sync: ${c.last_sync_at ? fmtDate(c.last_sync_at) : 'never'}${isLive ? ` · Tenant ${escapeHtml(config.tenantId)}` : ''}</span>
@@ -267,7 +269,7 @@ async function renderEvidence() {
 
   if (available.length) {
     document.getElementById('addConnList').innerHTML = available.map(t => t.liveCapable ? `
-      <div class="card" style="background:#faf8f3;">
+      <div class="card" style="background:var(--paper-tint);">
         <b>${escapeHtml(t.label)}</b>
         <div class="field-row" style="margin-top:6px;">
           <div><label><input type="radio" name="mode-${t.id}" value="simulated" checked /> Simulated (demo)</label></div>
@@ -764,6 +766,25 @@ const HELP_TOPICS = [
     ],
     tip: 'This is not a marketing claim, it is a genuine log. If a broker or carrier tells you they reviewed your evidence before a decision, this is where you can confirm it actually happened, and when.',
   },
+  {
+    key: 'account', icon: 'account', title: 'Account Settings',
+    purpose: 'Manage how you sign in and how the portal looks: appearance, multi-factor authentication, and, if your organization has one, single sign-on. These are personal to your login, not shared settings for your organization.',
+    sees: [
+      'Appearance: switch between Light and Dark. This is saved to this browser only, it does not sync to other devices or other people at your organization.',
+      'Multi-Factor Authentication: enable a second factor using any TOTP authenticator app (Microsoft Authenticator, Google Authenticator, 1Password, Authy, and similar), see how many one-time recovery codes you have left, disable MFA, or generate a fresh set of recovery codes.',
+      'Single Sign-On, shown only for accounts tied to an organization: configure your own identity provider so everyone at your organization can sign in without ever having a Laurelshield password.',
+    ],
+    steps: [
+      'Open Account Settings from the gear icon next to Sign out, top right of every page.',
+      'Under Appearance, click Light or Dark, the whole portal switches instantly, no save button needed.',
+      'Under Multi-Factor Authentication, click Enable MFA, scan the QR code with your authenticator app (or enter the setup key by hand), then type the 6-digit code it generates to confirm.',
+      'Immediately after enabling MFA, save the 10 recovery codes shown on screen somewhere safe, for example a password manager. Each one signs you in exactly once if you ever lose access to your authenticator app.',
+      'If your organization runs its own identity provider, fill in Single Sign-On: your email domain, issuer URL, client ID, and client secret, then click Test Configuration to confirm Laurelshield can actually reach it before saving.',
+    ],
+    warning: 'Recovery codes and the MFA setup key are shown only once, at the moment they are generated. If you lose them and also lose your authenticator device, an administrator will need to help you back into your account.',
+    keypoint: 'Single sign-on signs in an existing Laurelshield account matched by email address, it does not create new accounts or grant roles by itself. Who has an account at all, and what role they hold, is still decided separately when the account is provisioned.',
+    tip: 'Enabling MFA is one of the highest-value five minutes you can spend in this portal: it protects the same login that can issue, share, and revoke your organization\'s Cyber Risk Passport.',
+  },
 ];
 
 async function renderHelp() {
@@ -791,7 +812,7 @@ async function renderHelp() {
 // ------------------------------------------------------- Account Settings
 async function renderAccountSettings() {
   const el = document.getElementById('sec-account');
-  const { mfaEnabled } = await api('/api/account/me');
+  const { mfaEnabled, recoveryCodesRemaining } = await api('/api/account/me');
   const theme = getTheme();
   el.innerHTML = `<h1>Account Settings</h1>
     <p class="muted">Preferences for your own sign-in, not shared with anyone else in your organization.</p>
@@ -808,7 +829,13 @@ async function renderAccountSettings() {
     <div class="card">
       <h3>Multi-Factor Authentication</h3>
       <div id="mfaPanel"></div>
-    </div>`;
+    </div>
+
+    ${state.user.orgId ? `<div class="card">
+      <h3>Single Sign-On</h3>
+      <p class="small muted">Let everyone at your organization sign in through your own identity provider (Okta, Microsoft Entra ID, Google Workspace, Ping, Auth0, or any other OpenID Connect provider) instead of a Laurelshield password.</p>
+      <div id="ssoPanel"></div>
+    </div>` : ''}`;
 
   document.getElementById('themeLight').addEventListener('click', () => { setTheme('light'); renderAccountSettings(); });
   document.getElementById('themeDark').addEventListener('click', () => { setTheme('dark'); renderAccountSettings(); });
@@ -817,7 +844,10 @@ async function renderAccountSettings() {
   if (mfaEnabled) {
     mfaPanel.innerHTML = `
       <p><span class="badge verified">Enabled</span> Your account requires a 6-digit code from your authenticator app at sign-in.</p>
-      <button class="btn danger small" id="mfaDisableBtn">Disable MFA</button>`;
+      <p class="small muted">${recoveryCodesRemaining} recovery code${recoveryCodesRemaining === 1 ? '' : 's'} remaining. Each one signs you in once if you ever lose access to your authenticator app.</p>
+      <button class="btn small secondary" id="mfaRegenBtn">Regenerate Recovery Codes</button>
+      <button class="btn danger small" id="mfaDisableBtn">Disable MFA</button>
+      <div id="mfaCodesReveal" style="margin-top:14px;"></div>`;
     document.getElementById('mfaDisableBtn').addEventListener('click', async () => {
       const password = prompt('Enter your password to disable MFA:');
       if (!password) return;
@@ -825,6 +855,15 @@ async function renderAccountSettings() {
         await api('/api/account/mfa/disable', { method: 'POST', body: { password } });
         toast('MFA disabled.');
         await renderAccountSettings();
+      } catch (e) { toast('Incorrect password.', true); }
+    });
+    document.getElementById('mfaRegenBtn').addEventListener('click', async () => {
+      const password = prompt('Enter your password to regenerate recovery codes (this invalidates your old ones):');
+      if (!password) return;
+      try {
+        const { recoveryCodes } = await api('/api/account/mfa/recovery-codes/regenerate', { method: 'POST', body: { password } });
+        document.getElementById('mfaCodesReveal').innerHTML = renderRecoveryCodes(recoveryCodes);
+        toast('Recovery codes regenerated.');
       } catch (e) { toast('Incorrect password.', true); }
     });
   } else {
@@ -848,13 +887,75 @@ async function renderAccountSettings() {
       document.getElementById('mfaVerifyBtn').addEventListener('click', async () => {
         const token = document.getElementById('mfaCode').value.trim();
         try {
-          await api('/api/account/mfa/verify', { method: 'POST', body: { token } });
+          const { recoveryCodes } = await api('/api/account/mfa/verify', { method: 'POST', body: { token } });
+          document.getElementById('mfaEnroll').innerHTML = `<div class="callout"><b>MFA enabled.</b></div>` + renderRecoveryCodes(recoveryCodes);
           toast('MFA enabled.');
-          await renderAccountSettings();
         } catch (e) { toast('That code did not match. Try the current code from your app.', true); }
       });
     });
   }
+
+  if (state.user.orgId) await renderSsoPanel();
+}
+
+function renderRecoveryCodes(codes) {
+  return `<div class="callout warn">
+    <p><b>Save these recovery codes now.</b> Each one lets you sign in once if you lose access to your authenticator app. They will not be shown again.</p>
+    <div class="table-wrap"><table>${codes.map(c => `<tr><td class="mono">${c}</td></tr>`).join('')}</table></div>
+  </div>`;
+}
+
+async function renderSsoPanel() {
+  const panel = document.getElementById('ssoPanel');
+  const { config } = await api('/api/sso/config');
+  panel.innerHTML = `
+    <form id="ssoForm">
+      <div class="field-row">
+        <div><label>Email domain</label><input type="text" name="emailDomain" placeholder="yourcompany.com" value="${config ? escapeHtml(config.email_domain) : ''}" required /></div>
+        <div><label>Issuer URL</label><input type="text" name="issuerUrl" placeholder="https://your-idp.example.com" value="${config ? escapeHtml(config.issuer_url) : ''}" required /></div>
+      </div>
+      <div class="field-row">
+        <div><label>Client ID</label><input type="text" name="clientId" value="${config ? escapeHtml(config.client_id) : ''}" required /></div>
+        <div><label>Client Secret</label><input type="password" name="clientSecret" placeholder="${config && config.clientSecretConfigured ? 'Leave blank to keep current secret' : 'Required'}" /></div>
+      </div>
+      <label><input type="checkbox" name="enabled" style="width:auto; display:inline-block; margin-right:6px;" ${config && config.enabled ? 'checked' : ''} /> Enabled</label>
+      <div class="field-row" style="margin-top:10px;">
+        <div><button type="button" class="btn secondary small" id="ssoTestBtn">Test Configuration</button></div>
+        <div><button class="btn small" type="submit">Save</button></div>
+      </div>
+      <div id="ssoTestResult" style="margin-top:8px;"></div>
+    </form>`;
+
+  document.getElementById('ssoTestBtn').addEventListener('click', async () => {
+    const issuerUrl = document.querySelector('#ssoForm [name=issuerUrl]').value.trim();
+    const resultEl = document.getElementById('ssoTestResult');
+    if (!issuerUrl) { resultEl.innerHTML = '<div class="callout warn">Enter an issuer URL first.</div>'; return; }
+    try {
+      const r = await api('/api/sso/config/test', { method: 'POST', body: { issuerUrl } });
+      resultEl.innerHTML = `<div class="callout">Discovery succeeded.<br><span class="small">Authorization endpoint: <code>${escapeHtml(r.authorizationEndpoint)}</code><br>Token endpoint: <code>${escapeHtml(r.tokenEndpoint)}</code></span></div>`;
+    } catch (e) {
+      resultEl.innerHTML = `<div class="callout warn">Could not discover that issuer. Confirm the URL and that it is reachable.</div>`;
+    }
+  });
+
+  document.getElementById('ssoForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const body = {
+      emailDomain: fd.get('emailDomain').trim().toLowerCase(),
+      issuerUrl: fd.get('issuerUrl').trim(),
+      clientId: fd.get('clientId').trim(),
+      clientSecret: fd.get('clientSecret').trim() || undefined,
+      enabled: fd.get('enabled') === 'on',
+    };
+    try {
+      await api('/api/sso/config', { method: 'POST', body });
+      toast('Single sign-on configuration saved.');
+      await renderSsoPanel();
+    } catch (err) {
+      toast(err.data && err.data.error === 'clientSecret_required' ? 'Client secret is required the first time.' : 'Could not save SSO configuration.', true);
+    }
+  });
 }
 
 init().catch(e => toast(e.message, true));

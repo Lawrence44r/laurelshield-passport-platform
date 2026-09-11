@@ -11,7 +11,8 @@ const router = express.Router();
 router.use(requireAuth);
 
 router.get('/me', (req, res) => {
-  res.json({ mfaEnabled: !!req.user.mfa_enabled });
+  const codes = req.user.mfa_recovery_codes ? JSON.parse(req.user.mfa_recovery_codes) : [];
+  res.json({ mfaEnabled: !!req.user.mfa_enabled, recoveryCodesRemaining: codes.length });
 });
 
 // Generates a new TOTP secret and returns a QR code to scan with any
@@ -34,9 +35,10 @@ router.post('/mfa/verify', (req, res) => {
     auditLog.log(db, { actorUserId: req.user.id, action: 'mfa_verify_failed' });
     return res.status(400).json({ error: 'invalid_code' });
   }
-  db.prepare('UPDATE users SET mfa_enabled = 1 WHERE id = ?').run(req.user.id);
+  const { plain, hashed } = mfa.generateRecoveryCodes();
+  db.prepare('UPDATE users SET mfa_enabled = 1, mfa_recovery_codes = ? WHERE id = ?').run(JSON.stringify(hashed), req.user.id);
   auditLog.log(db, { actorUserId: req.user.id, action: 'mfa_enabled' });
-  res.json({ ok: true });
+  res.json({ ok: true, recoveryCodes: plain });
 });
 
 router.post('/mfa/disable', (req, res) => {
@@ -44,9 +46,24 @@ router.post('/mfa/disable', (req, res) => {
   if (!password || !bcrypt.compareSync(password, req.user.password_hash)) {
     return res.status(401).json({ error: 'invalid_password' });
   }
-  db.prepare('UPDATE users SET mfa_enabled = 0, mfa_secret = NULL WHERE id = ?').run(req.user.id);
+  db.prepare('UPDATE users SET mfa_enabled = 0, mfa_secret = NULL, mfa_recovery_codes = NULL WHERE id = ?').run(req.user.id);
   auditLog.log(db, { actorUserId: req.user.id, action: 'mfa_disabled' });
   res.json({ ok: true });
+});
+
+// Invalidates any unused codes and issues a fresh set of 10. Requires the
+// account password, same bar as disabling MFA, since a leaked recovery code
+// is as good as the second factor itself.
+router.post('/mfa/recovery-codes/regenerate', (req, res) => {
+  const { password } = req.body || {};
+  if (!password || !bcrypt.compareSync(password, req.user.password_hash)) {
+    return res.status(401).json({ error: 'invalid_password' });
+  }
+  if (!req.user.mfa_enabled) return res.status(400).json({ error: 'mfa_not_enabled' });
+  const { plain, hashed } = mfa.generateRecoveryCodes();
+  db.prepare('UPDATE users SET mfa_recovery_codes = ? WHERE id = ?').run(JSON.stringify(hashed), req.user.id);
+  auditLog.log(db, { actorUserId: req.user.id, action: 'mfa_recovery_codes_regenerated' });
+  res.json({ ok: true, recoveryCodes: plain });
 });
 
 module.exports = router;

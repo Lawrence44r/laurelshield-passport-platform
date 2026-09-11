@@ -286,7 +286,7 @@ bb.keypoint("A \"no\" on any item above is not a reason to delay onboarding. It 
 # PART B - GUIDED WALKTHROUGH EXERCISES
 # =============================================================================
 bb.part_divider("B", "Guided Walkthrough Exercises",
-                 blurb="Ten exercises, one per portal screen, done against the fully "
+                 blurb="Eleven exercises, one per portal screen, done against the fully "
                        "verified `admin@abcmanufacturing.example` tenant. Pairs 1:1 with "
                        "Textbook Part III. Log in before you begin each exercise.")
 
@@ -571,6 +571,47 @@ bb.number("The Audit Trail is described as proof of a deliberate transparency pr
 bb.number("If Granite Peak Insurance Brokers viewed your passport but that access never "
           "showed up here, what would that suggest is broken about the platform's core "
           "promise?")
+
+bb.chapter("Exercise B11: Account Settings")
+bb.h2("What You'll Practice")
+bb.para("Securing your own login rather than your organization's data: switching appearance, "
+        "enabling multi-factor authentication with a real authenticator app, generating and "
+        "handling recovery codes, and, if you have an organization to test it with, filling in "
+        "a single sign-on configuration.")
+bb.h2("Steps")
+bb.number("Click the gear icon next to Sign out, top right of the screen, to open Account "
+          "Settings.")
+bb.number("Under Appearance, click Dark. Confirm the whole portal switches instantly. Revisit "
+          "one or two screens from earlier exercises (Control Results and Cyber Risk Passport "
+          "are good choices) and confirm every heading, badge, and table is still fully "
+          "legible. Switch back to Light when you are done.")
+bb.number("Under Multi-Factor Authentication, click Enable MFA. Install a TOTP authenticator "
+          "app on your phone or computer first if you do not already have one (Microsoft "
+          "Authenticator, Google Authenticator, and 1Password all work). Scan the QR code, "
+          "then enter the live 6-digit code the app generates to confirm.")
+bb.warning("The ten recovery codes shown immediately after confirming are displayed exactly "
+           "once. Copy them into a password manager or another durable, private location "
+           "before navigating away from this screen. If you close the page without saving "
+           "them and later lose your authenticator device, you will need an administrator to "
+           "restore your access.")
+bb.number("Sign out and sign back in. Confirm the portal now asks for a 6-digit authenticator "
+          "code as a second step before completing sign-in.")
+bb.number("Return to Account Settings and note how many recovery codes remain unused.")
+bb.number("Optional, if you have access to a test identity provider: under Single Sign-On, "
+          "fill in an email domain, issuer URL, client ID, and client secret, then click Test "
+          "Configuration before saving. If you do not have a test identity provider available, "
+          "read the form fields and skip to the reflection questions.")
+bb.h2("Reflection Questions")
+bb.number("A customer_admin login can issue, share, and revoke your organization's Cyber Risk "
+          "Passport. In your own words, why does that make MFA on this specific account more "
+          "important than MFA on an average consumer account?")
+bb.number("The platform states that single sign-on signs in an existing account matched by "
+          "email; it does not create new accounts or grant roles by itself. Why does that "
+          "distinction matter for an organization that wants to let every employee sign in "
+          "through its own identity provider?")
+bb.number("Appearance is the one setting on this screen with no security implication. Why do "
+          "you think it lives on the same screen as MFA and SSO instead of somewhere else in "
+          "the portal?")
 
 # =============================================================================
 # PART C - FROM-SCRATCH EXERCISE

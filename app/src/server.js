@@ -7,6 +7,7 @@ const cookieParser = require('cookie-parser');
 
 const authRoutes = require('./routes/auth');
 const accountRoutes = require('./routes/account');
+const ssoRoutes = require('./routes/sso');
 const customerRoutes = require('./routes/customer');
 const opsRoutes = require('./routes/ops');
 const brokerRoutes = require('./routes/broker');
@@ -35,6 +36,7 @@ app.use(session({
 
 app.use('/api/auth', authRoutes);
 app.use('/api/account', accountRoutes);
+app.use('/api/sso', ssoRoutes);
 app.use('/api/customer', customerRoutes);
 app.use('/api/ops', opsRoutes);
 app.use('/api/broker', brokerRoutes);

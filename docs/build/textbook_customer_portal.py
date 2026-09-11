@@ -616,15 +616,38 @@ bb.part_divider(3, "Using the Laurelshield Customer Portal: A Guided Walkthrough
 
 # ---------------------------------------------------------------- CH 12 Login
 bb.chapter("12. Signing In")
-bb.para("Every session with the Laurelshield Customer Portal begins at the same split-panel login "
-        "screen. The left panel, rendered in dark navy, carries the Laurelshield logo and wordmark, "
-        "the platform's tagline, \"Verify once. Demonstrate everywhere,\" a short description of "
-        "what the platform does, and four bullet value-proposition points: canonical control "
+bb.para("Every session with the Laurelshield platform begins at the same split-panel login screen. "
+        "The left panel, rendered in dark navy, carries the Laurelshield logo and wordmark, the "
+        "platform's tagline, \"Verify once. Demonstrate everywhere,\" a short description of what "
+        "the platform does, and four bullet value-proposition points: canonical control "
         "verification, signed and revocable passports, independent decision authority, and a full "
-        "audit trail. The right panel, in white, holds the actual sign-in form: an email field, a "
-        "password field, and, in this reference deployment, a demo-accounts reference block listing "
-        "the available demo logins.")
-bb.screenshot(SHOT("00-login.png"), caption="Figure 12.1: The Laurelshield split-panel login screen.")
+        "audit trail. The right panel, in white, holds four portal tabs, Customer, Assurance "
+        "Operations, Broker, and Carrier, above the actual sign-in form: an email field, a password "
+        "field, a \"Continue with company SSO instead\" button, and, in this reference deployment, "
+        "a demo-accounts reference block listing the available demo logins.")
+bb.screenshot(SHOT("00-login.png"), caption="Figure 12.1: The Laurelshield split-panel login screen, "
+                                             "showing the four portal tabs and the company SSO option.")
+bb.para("The four portal tabs change only the heading, subtitle, and highlighted demo-account row on "
+        "the right panel, so a first-time visitor lands on a sign-in form addressed to them, whether "
+        "they are the organization being assessed, Laurelshield's own assurance staff, a broker, or "
+        "a carrier underwriter. The tabs are a navigational affordance only; they do not gate "
+        "anything. The server, not the browser, decides which portal a session actually belongs to, "
+        "from the account's stored role, every time. Clicking the Broker tab and then signing in "
+        "with a customer_admin account still lands correctly on the Customer Portal. This matters "
+        "for the same reason separation of duties matters throughout this book: a control that lives "
+        "only in the client is not really a control, so portal routing is enforced server-side, and "
+        "the tabs exist purely to make the form less confusing to a human, not to authorize anything.")
+bb.para("The \"Continue with company SSO instead\" button is the entry point to the single sign-on "
+        "flow covered in Chapter 23. A visitor types their work email, clicks the button, and the "
+        "platform looks up whether that email's domain has single sign-on configured for its "
+        "organization; if so, the browser is redirected to that organization's own identity "
+        "provider, and if not, the visitor is told to sign in with a password instead. If an "
+        "account has multi-factor authentication enabled, whether reached by password or by SSO, "
+        "sign-in is not complete until a second step: the form replaces itself with a single "
+        "authenticator-code field, accepting either a live 6-digit time-based code or, for someone "
+        "who has lost their device, a one-time recovery code in XXXX-XXXX format. Chapter 23 covers "
+        "enabling MFA, generating and storing recovery codes, and configuring an organization's own "
+        "identity provider in detail.")
 bb.para("The four bullet points on the left panel are not marketing filler; they are a compressed "
         "preview of the entire book. \"Canonical control verification\" is Part I, Chapter 4 and "
         "the LaurelVerify family from Part II. \"Signed, revocable passports\" is LaurelTrust, "
@@ -640,12 +663,12 @@ bb.para("For a customer administrator like Grace Thompson, the account used thro
         "administrator should always confirm the correct URL and credentials with their own "
         "Laurelshield administrator rather than assuming a documentation example is the live "
         "address.")
-bb.goodpractice("Routing after login is role-based and automatic: signing in with a customer "
-                 "account lands on the Customer Portal covered in this part; signing in with a "
-                 "broker or carrier account lands on a different, role-appropriate portal. There is "
-                 "no manual portal selection step, which is itself a small piece of access control: "
-                 "a user cannot accidentally, or deliberately, browse into a portal their role does "
-                 "not grant.")
+bb.goodpractice("Routing after login is role-based and automatic, and this is enforced on the "
+                 "server, not by whichever portal tab happened to be selected on screen: signing in "
+                 "with a customer account lands on the Customer Portal covered in this part; signing "
+                 "in with a broker or carrier account lands on a different, role-appropriate portal. "
+                 "A user cannot accidentally, or deliberately, browse into a portal their role does "
+                 "not grant, regardless of which tab they clicked on the way in.")
 
 # ---------------------------------------------------------------- CH 13 Overview
 bb.chapter("13. The Overview Screen")
@@ -1045,13 +1068,108 @@ bb.para("This is also the practical, day-to-day partner of the deliberate transp
         "traditional insurance application process, where an applicant generally has no visibility "
         "at all into who within a carrier's organization reviewed their submission, when, or how "
         "many times.")
+
+# ---------------------------------------------------------------- CH 23 Account Settings
+bb.chapter("23. Account Settings: Appearance, Multi-Factor Authentication, and Single Sign-On")
+bb.para("Every screen covered so far in this part concerns ABC Manufacturing's data: its scope, "
+        "its evidence, its passport, who else can see it. Account Settings is different. It "
+        "concerns the login itself, the credential that lets Grace Thompson, specifically, act on "
+        "ABC Manufacturing's behalf, and it is reached from a gear icon in the top-right corner of "
+        "every screen in the portal, next to Sign out, rather than from the main navigation used "
+        "for the rest of this part.")
+bb.screenshot(SHOT("11-account-settings.png"), caption="Figure 23.1: Account Settings, showing "
+              "Appearance, Multi-Factor Authentication, and the Single Sign-On configuration form.")
+bb.h2("Appearance: Light and Dark")
+bb.para("The Appearance card offers a straightforward Light or Dark toggle, applied instantly and "
+        "stored in the browser only, not synced across devices and not visible to anyone else at "
+        "ABC Manufacturing. This is the one setting on this screen with no security implication; "
+        "it exists for comfort and accessibility, particularly for anyone reviewing evidence or "
+        "control tables for long stretches, or working in a low-light environment. The dark theme "
+        "was deliberately built to a strict rule: every element that reads as brand chrome, the "
+        "top bar, buttons, the Laurelshield wordmark, keeps a single fixed set of colors regardless "
+        "of theme, while everything else, page backgrounds, body text, card surfaces, inverts "
+        "cleanly to a near-black background with high-contrast text. A platform that gets this "
+        "wrong, for example by reusing one color token for two unrelated purposes, ends up with "
+        "invisible or illegible text in one of the two themes; getting it right is a small but "
+        "genuine accessibility and quality signal.")
+bb.screenshot(SHOT("12-dark-mode.png"), caption="Figure 23.2: The Overview screen in Dark mode. "
+              "Headings, stat values, status badges, the table header, and navigation links all "
+              "remain fully legible against the near-black background.")
+bb.h2("Multi-Factor Authentication")
+bb.para("The Multi-Factor Authentication card is where Grace enables a second factor on her own "
+        "login, using any standard TOTP (time-based one-time password) authenticator app: Microsoft "
+        "Authenticator, Google Authenticator, 1Password, Authy, or any other app that implements "
+        "the same open standard. Clicking Enable MFA presents a QR code, and a setup key for anyone "
+        "who prefers to type it in by hand, then asks for a live 6-digit code from the app to "
+        "confirm the pairing actually worked before MFA is switched on. Immediately after "
+        "confirmation, the portal displays ten recovery codes, each usable exactly once, meant to "
+        "be saved somewhere durable, a password manager rather than a sticky note, in case the "
+        "authenticator device is ever lost. From that point forward, every sign-in to this account, "
+        "whether by password or by single sign-on, requires that second factor before a session is "
+        "granted.")
+bb.keypoint("This is a real second factor, not a cosmetic one. The recovery codes are stored "
+            "bcrypt-hashed, the same one-way hashing used for the account password itself, so even "
+            "someone with direct database access cannot read out a usable code. Each code is also "
+            "single-use: consuming one to sign in immediately removes it from the remaining pool, "
+            "which is why the panel tracks and displays how many of the original ten are still "
+            "valid.")
+bb.para("Why this matters here specifically, more than on an arbitrary consumer account: a "
+        "customer_admin login is the account that can issue a new Cyber Risk Passport, revoke an "
+        "existing one, and grant or revoke a broker's or carrier's access to it. An attacker who "
+        "compromises only a password, with no second factor in the way, inherits all of that "
+        "authority instantly. Every one of the separation-of-duties controls examined earlier in "
+        "this book, independent verification, independent remediation sign-off, independent appeal "
+        "review, assumes that the account taking an action is genuinely the person it claims to be. "
+        "MFA is the control that protects that assumption at its weakest point, the login itself.")
+bb.goodpractice("Enable MFA on every account with meaningful authority, not only the primary "
+                 "administrator. A Laurelshield deployment with one well-protected admin account "
+                 "and several unprotected secondary accounts has not actually closed this gap, it "
+                 "has just moved the easiest target.")
+bb.h2("Single Sign-On")
+bb.para("The Single Sign-On card, visible only to accounts tied to an organization, customer, "
+        "broker, and carrier accounts, not Laurelshield's own Assurance Operations staff, lets an "
+        "organization connect its own identity provider: Okta, Microsoft Entra ID, Google "
+        "Workspace, Ping, Auth0, or any other provider that speaks standard OpenID Connect. "
+        "Configuring it requires the organization's email domain, the identity provider's issuer "
+        "URL, and a client ID and client secret from an application registration made on that "
+        "provider's side. A Test Configuration button checks that Laurelshield can actually reach "
+        "the provider's discovery document before the configuration is saved, catching a typo'd "
+        "issuer URL or an unreachable endpoint immediately rather than at the next real sign-in "
+        "attempt.")
+bb.para("Once configured, anyone at that organization can use the \"Continue with company SSO "
+        "instead\" button on the login screen described in Chapter 12: they enter their work email, "
+        "the platform looks up the matching organization by email domain, and the browser is "
+        "redirected to that organization's identity provider using the Authorization Code flow "
+        "with PKCE, the current standard, security-hardened way to implement OpenID Connect for a "
+        "web application. After the identity provider authenticates the person and redirects back, "
+        "Laurelshield exchanges the authorization code for identity tokens and looks for an "
+        "existing Laurelshield account whose email matches.")
+bb.warning("Single sign-on in this platform authenticates; it does not provision. It signs in an "
+           "account that already exists, matched strictly by email address within the "
+           "organization's own configuration. It does not create a new Laurelshield account and it "
+           "does not assign or change a role. Who has an account at ABC Manufacturing at all, and "
+           "what role, customer_admin or otherwise, they hold, remains a decision made separately, "
+           "the same way it always was. An identity provider successfully authenticating someone "
+           "whose email has no matching Laurelshield account results in a clear error, not an "
+           "automatically created account.")
+bb.para("This is a deliberate, narrower scope than \"full SSO\" sometimes implies in other "
+        "products, and it mirrors a pattern seen elsewhere in this book: the platform draws a hard "
+        "line between authentication, confirming who someone is, and authorization, deciding what "
+        "they are allowed to do, the same distinction that underlies the separation-of-duties "
+        "controls covered in Chapter 5 and Chapter 8. Single sign-on answers only the first "
+        "question. It is also, deliberately, a multi-tenant \"bring your own identity provider\" "
+        "design rather than one shared provider for the whole platform: ABC Manufacturing's "
+        "configuration is scoped to ABC Manufacturing's own organization record and has no bearing "
+        "on how Granite Peak Insurance Brokers or Northstar Underwriting configure, or don't "
+        "configure, their own single sign-on.")
 bb.para("This concludes the guided walkthrough of the Customer Portal. A customer administrator who "
-        "has worked through this part in order, from first login through the Audit Trail, has now "
+        "has worked through this part in order, from first login through Account Settings, has now "
         "seen every screen they need for the full lifecycle: registering scope, connecting "
         "evidence, reviewing verified control results, mapping supplier dependencies, working "
         "remediation, issuing and managing a signed passport, controlling who can see it, "
-        "contesting a decision when warranted, and confirming, independently, that the whole "
-        "process behaved exactly as described.")
+        "contesting a decision when warranted, confirming independently that the whole process "
+        "behaved exactly as described, and protecting the login that makes all of the above "
+        "trustworthy in the first place.")
 
 # ======================================================================
 # BACK MATTER: GLOSSARY
