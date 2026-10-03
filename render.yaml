@@ -1,8 +1,12 @@
-# Render Blueprint for the Passport Platform. In the Render dashboard:
-# New -> Blueprint -> connect this repo -> Render reads this file and
-# pre-fills the service for you. No secret values live in this file --
-# everything marked `sync: false` must be set once in the dashboard after
-# the service is created (Settings -> Environment).
+# Render Blueprint for the Passport Platform. Must live at the repo ROOT
+# (this file) -- Render's default Blueprint flow only reads render.yaml
+# from the top of the repo, not from a subdirectory. The actual app lives
+# in app/, so `rootDir` tells Render to build/start from there.
+#
+# In the Render dashboard: New -> Blueprint -> connect this repo -> Render
+# reads this file and pre-fills the service for you. No secret values live
+# in this file -- everything marked `sync: false` must be set once in the
+# dashboard after the service is created (Settings -> Environment).
 #
 # Currently set to the FREE plan, deliberately -- for validating the app
 # publicly before any real customer data needs to survive. Read this before
@@ -27,6 +31,7 @@ services:
   - type: web
     name: laurelshield-passport-platform
     runtime: node
+    rootDir: app
     plan: free
     buildCommand: npm install
     startCommand: npm start
