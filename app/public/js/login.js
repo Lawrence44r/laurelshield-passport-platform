@@ -14,7 +14,7 @@ const ROLE_HOME = {
 // user in the Customer Portal, correctly.
 const PORTAL_COPY = {
   customer: { title: 'Sign in to your Customer Portal', subtitle: 'For the organization being assessed: register scope, connect evidence, and manage your Cyber Risk Passport.' },
-  ops: { title: 'Sign in to Assurance Operations', subtitle: 'For Laurelshield staff: verification, re-verification, appeals, and the carrier requirements graph.' },
+  ops: { title: 'Sign in to Assurance Operations', subtitle: 'For Congruentshield staff: verification, re-verification, appeals, and the carrier requirements graph.' },
   broker: { title: 'Sign in to your Broker Console', subtitle: 'For brokers: view client passports your customers have authorized you to see.' },
   carrier: { title: 'Sign in to your Carrier Console', subtitle: 'For carriers and underwriters: your translated portfolio view and released claim evidence packs.' },
 };
@@ -53,7 +53,7 @@ const SSO_ERRORS = {
   idp_unreachable: 'Could not reach your identity provider. Try again or use your password.',
   no_pending_login: 'Your sign-in session expired. Start again.',
   idp_exchange_failed: 'Your identity provider could not complete sign-in. Try again or use your password.',
-  no_account: 'Your identity provider authenticated you, but no Laurelshield account matches your email. Contact your administrator.',
+  no_account: 'Your identity provider authenticated you, but no Congruentshield account matches your email. Contact your administrator.',
   session_error: 'Something went wrong starting your session. Try again.',
 };
 (() => {

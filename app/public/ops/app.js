@@ -130,7 +130,7 @@ async function renderDashboard() {
 async function renderVerification() {
   const el = document.getElementById('sec-verification');
   const { items } = await api('/api/ops/verification-queue');
-  el.innerHTML = `<h1>Verification Queue</h1>
+  el.innerHTML = `<h1>LaurelVerify&trade; <small class="brand-tag">Verification Queue</small></h1>
     <p class="muted">Manual/document evidence pending review. Assessors propose ECL and effectiveness; only a Decision Officer (or Admin) finalizes approve/reject. This separation is structural, not optional.</p>
     <div class="table-wrap"><table>
       <tr><th>Org / Scope</th><th>Control</th><th>Proposed ECL</th><th>Effectiveness</th><th></th></tr>
@@ -169,7 +169,7 @@ async function renderVerification() {
 async function renderReverification() {
   const el = document.getElementById('sec-reverification');
   const { items } = await api('/api/ops/reverification-queue');
-  el.innerHTML = `<h1>Independent Re-verification Queue</h1>
+  el.innerHTML = `<h1>LaurelGuard&trade; <small class="brand-tag">Independent Re-verification Queue</small></h1>
     <p class="muted">Stage 8: customer has marked these remediated. An assurance operations role independent of implementation must confirm closure before the finding closes.</p>
     <div class="table-wrap"><table>
       <tr><th>Org / Scope</th><th>Control</th><th>Finding</th><th></th></tr>
@@ -213,8 +213,8 @@ async function renderAppeals() {
 
 async function renderPartners() {
   const el = document.getElementById('sec-partners');
-  el.innerHTML = `<h1>Partners &amp; Underwriting Requirements Graph</h1>
-    <p class="muted callout warn">Confidential (Section 5.6, 12.11). Requirement weights and minimum ECL thresholds are Laurelshield trade secrets, never exposed to customers, brokers, or other carriers via any API response.</p>
+  el.innerHTML = `<h1>InsurGraph&trade; <small class="brand-tag">Partners &amp; Underwriting Requirements Graph</small></h1>
+    <p class="muted callout warn">Confidential (Section 5.6, 12.11). Requirement weights and minimum ECL thresholds are Congruentshield trade secrets, never exposed to customers, brokers, or other carriers via any API response.</p>
     ${can('admin') ? `<div class="card"><h3>Register New Partner</h3>
       <form id="partnerForm">
         <div class="field-row">
@@ -293,7 +293,7 @@ async function renderPartners() {
 async function renderSupplierConcentration() {
   const el = document.getElementById('sec-suppliers');
   const { report } = await api('/api/ops/suppliers/concentration');
-  el.innerHTML = `<h1>Supplier Concentration Report</h1>
+  el.innerHTML = `<h1>AssureGraph&trade; <small class="brand-tag">Supplier Concentration Report</small></h1>
     <p class="muted">Ops Guide Section 8: flags a supplier when more than one insured depends on it, since the same outage or breach then becomes a multi-policy loss event. Generated weekly during the pilot.</p>
     <div class="table-wrap"><table>
       <tr><th>Supplier</th><th>Insureds</th><th>Highest Criticality</th><th>Detail</th></tr>
@@ -404,8 +404,8 @@ async function renderCatalogue() {
 
 async function renderDemo() {
   const el = document.getElementById('sec-demo');
-  if (!can('admin')) { el.innerHTML = '<h1>Continuous Assurance Tools</h1><div class="empty-state">Administrator role required.</div>'; return; }
-  el.innerHTML = `<h1>Continuous Assurance Tools</h1>
+  if (!can('admin')) { el.innerHTML = '<h1>LaurelGuard&trade; <small class="brand-tag">Continuous Assurance Tools</small></h1><div class="empty-state">Administrator role required.</div>'; return; }
+  el.innerHTML = `<h1>LaurelGuard&trade; <small class="brand-tag">Continuous Assurance Tools</small></h1>
     <p class="muted">Section 5.9, 11: demo/testing utilities to exercise the freshness engine without waiting in real time.</p>
     <div class="card">
       <h3>Run Global Freshness Sweep</h3>
@@ -434,9 +434,9 @@ async function renderDemo() {
 
 async function renderAudit() {
   const el = document.getElementById('sec-audit');
-  if (!can('admin')) { el.innerHTML = '<h1>Full Audit Log</h1><div class="empty-state">Administrator role required.</div>'; return; }
+  if (!can('admin')) { el.innerHTML = '<h1>AssuranceLedger&trade; <small class="brand-tag">Full Audit Log</small></h1><div class="empty-state">Administrator role required.</div>'; return; }
   const { entries } = await api('/api/ops/audit');
-  el.innerHTML = `<h1>Full Audit Log</h1>
+  el.innerHTML = `<h1>AssuranceLedger&trade; <small class="brand-tag">Full Audit Log</small></h1>
     <div class="table-wrap"><table>
       <tr><th>When</th><th>Actor</th><th>Action</th><th>Resource</th></tr>
       ${entries.map(e => `<tr><td class="small">${fmtDate(e.at)}</td><td class="small">${e.actor_user_id ? 'user #' + e.actor_user_id : escapeHtml(e.actor_label || 'system')}</td><td class="small">${e.action}</td><td class="small">${e.resource_type || ''} ${e.resource_id || ''}</td></tr>`).join('')}
@@ -535,7 +535,7 @@ function renderRecoveryCodes(codes) {
 const HELP_TOPICS = [
   {
     key: 'dashboard', icon: 'dashboard', title: 'Dashboard',
-    purpose: 'A portfolio-wide snapshot across every customer organization Laurelshield assures, plus quick access to your own working queues.',
+    purpose: 'A portfolio-wide snapshot across every customer organization Congruentshield assures, plus quick access to your own working queues.',
     sees: [
       'Quick Actions: one-click tiles to every queue and tool.',
       'Portfolio Summary: customer organizations, assurance boundaries, active passports, pending verifications, re-verification queue, and open appeals.',
@@ -548,7 +548,7 @@ const HELP_TOPICS = [
     tip: 'A growing gap between Verification Queue and Re-verification Queue over several days usually means a bottleneck on one side of the separation-of-duties wall: assessors proposing faster than decision officers can confirm, or vice versa.',
   },
   {
-    key: 'verification', icon: 'check', title: 'Verification Queue',
+    key: 'verification', icon: 'check', title: 'LaurelVerify&trade; (Verification Queue)',
     purpose: 'Stage 5 of the assurance lifecycle: manual and document evidence waiting to become a verified claim.',
     sees: [
       'Each pending item: customer org, scope, control, proposed ECL, and effectiveness.',
@@ -561,7 +561,7 @@ const HELP_TOPICS = [
     warning: 'This separation is structural, not a courtesy. An assessor can never approve their own assessment; only a Decision Officer or Admin can finalize the decision. Do not treat Approve as a rubber stamp on whatever the assessor proposed, actually check it.',
   },
   {
-    key: 'reverification', icon: 'reverify', title: 'Re-verification Queue',
+    key: 'reverification', icon: 'reverify', title: 'LaurelGuard&trade; (Re-verification Queue)',
     purpose: 'Stage 8: confirms a customer\'s "mark remediated" claim before the finding is allowed to actually close.',
     sees: ['Each pending item: customer org, scope, control, and the original finding description.'],
     steps: [
@@ -580,9 +580,9 @@ const HELP_TOPICS = [
     tip: 'Resolution notes matter. They become part of the permanent record the customer can see, and a future appeal on a similar control may reference this one.',
   },
   {
-    key: 'partners', icon: 'partners', title: 'Partners &amp; Requirements Graph',
-    purpose: 'The confidential Carrier Requirements Graph: Laurelshield\'s highest-value trade secret. Administrator access only.',
-    sees: ['Registered broker and carrier partners.', 'For each, the mapping from their own proprietary question wording to Laurelshield\'s canonical controls, with minimum ECL, weight, mandatory flag, and source classification.'],
+    key: 'partners', icon: 'partners', title: 'InsurGraph&trade; (Partners &amp; Requirements Graph)',
+    purpose: 'The confidential Carrier Requirements Graph: Congruentshield\'s highest-value trade secret. Administrator access only.',
+    sees: ['Registered broker and carrier partners.', 'For each, the mapping from their own proprietary question wording to Congruentshield\'s canonical controls, with minimum ECL, weight, mandatory flag, and source classification.'],
     steps: [
       'Register a new partner with Create Partner (name and type).',
       'Add a requirement mapping: the partner\'s own requirement code and label, the canonical control it maps to, minimum ECL, maximum evidence age, whether it\'s mandatory, its weight, and how the weighting was sourced.',
@@ -590,7 +590,7 @@ const HELP_TOPICS = [
     warning: 'These weights, thresholds, and confidential notes must never appear in any customer-, broker-, or carrier-facing response. Only the translation engine\'s output (Pass, Conditional, Evidence Expiring, or Material Gap) is ever exposed externally. If you are ever unsure whether a field is safe to expose, assume it is not.',
   },
   {
-    key: 'suppliers', icon: 'suppliers', title: 'Supplier Concentration',
+    key: 'suppliers', icon: 'suppliers', title: 'AssureGraph&trade; (Supplier Concentration)',
     purpose: 'A portfolio-wide view of which suppliers serve more than one insured, flagging multi-policy loss exposure.',
     sees: ['Every supplier registered by any customer, with insured count, highest criticality, and the detail of which organizations depend on it.'],
     steps: ['Review this weekly.', 'Escalate any newly flagged concentration risk (a supplier now serving two or more insureds) to the relevant underwriting contact.'],
@@ -608,11 +608,11 @@ const HELP_TOPICS = [
   },
   {
     key: 'catalogue', icon: 'catalogue', title: 'Controls Catalogue',
-    purpose: 'The published, vendor-neutral canonical control standard, organized by domain. Not confidential, this is Laurelshield\'s public assurance standard.',
-    tip: 'When a customer asks "why does this control exist," this screen has the objective and test procedure in Laurelshield\'s own words, useful to quote back to them directly.',
+    purpose: 'The published, vendor-neutral canonical control standard, organized by domain. Not confidential, this is Congruentshield\'s public assurance standard.',
+    tip: 'When a customer asks "why does this control exist," this screen has the objective and test procedure in Congruentshield\'s own words, useful to quote back to them directly.',
   },
   {
-    key: 'demo', icon: 'assurance', title: 'Continuous Assurance Tools',
+    key: 'demo', icon: 'assurance', title: 'LaurelGuard&trade; (Continuous Assurance Tools)',
     purpose: 'Administrator-only utilities to exercise the freshness engine without waiting in real time.',
     steps: [
       'Run Global Freshness Sweep: expires any assurance claim whose evidence has aged past its control\'s freshness window, across the whole platform.',
@@ -620,7 +620,7 @@ const HELP_TOPICS = [
     ],
   },
   {
-    key: 'audit', icon: 'audit', title: 'Full Audit Log',
+    key: 'audit', icon: 'audit', title: 'AssuranceLedger&trade; (Full Audit Log)',
     purpose: 'The complete, immutable log across the entire platform. Administrator only. Each customer sees only their own scoped slice of this same log in their own portal.',
     tip: 'If a customer disputes what happened and when, this is the authoritative record, not memory or email threads.',
   },

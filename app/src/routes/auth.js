@@ -17,6 +17,19 @@ const loginLimiter = rateLimit({
   message: { error: 'too_many_attempts' },
 });
 
+// Deliberately separate from, and stricter than, loginLimiter -- signup
+// creates a brand-new organization every time it succeeds, which is a much
+// more expensive action to allow at login-attempt volume (mass spam orgs
+// filling a free-tier instance, or automated abuse of a public endpoint
+// with no human review gate in front of it).
+const signupLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  limit: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'too_many_signup_attempts' },
+});
+
 function publicUser(user) {
   return { id: user.id, email: user.email, fullName: user.full_name, role: user.role, orgId: user.org_id };
 }
@@ -81,28 +94,32 @@ router.post('/verify-mfa', loginLimiter, (req, res) => {
 // which by design never auto-provisions an account on first login. This is
 // the one path that actually creates a brand-new organization from a public
 // request with no prior session, matching the Agentic Automation
-// Architecture's self-serve funnel (Part V). Shares creation logic with the
-// internal, server-to-server provisioning endpoint (routes/internal.js) via
-// services/provisioning.js so there is exactly one way a new org is created.
-router.post('/signup', loginLimiter, (req, res) => {
+// Architecture's self-serve funnel (Part V). All validation (email format,
+// password strength, name sanitization) lives in services/provisioning.js,
+// shared with the internal, server-to-server provisioning endpoint
+// (routes/internal.js) -- one place decides what counts as good input,
+// regardless of which door it came in through.
+const SIGNUP_ERROR_STATUS = {
+  company_name_email_and_password_required: 400,
+  invalid_email: 400,
+  password_too_short: 400,
+  password_too_common: 400,
+  email_already_registered: 409,
+};
+
+router.post('/signup', signupLimiter, (req, res) => {
   const { companyName, email, password, fullName } = req.body || {};
-  if (!companyName || !email || !password) {
-    return res.status(400).json({ error: 'company_name_email_and_password_required' });
-  }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email))) {
-    return res.status(400).json({ error: 'invalid_email' });
-  }
-  if (String(password).length < 10) {
-    return res.status(400).json({ error: 'password_too_short', minLength: 10 });
-  }
 
   let provisioned;
   try {
-    provisioned = provisioning.createOrgAndAdmin(db, { companyName, email, password, fullName });
+    provisioned = provisioning.createOrgAndAdmin(db, {
+      companyName, email, password, fullName,
+      actorLabel: 'system:self_serve_signup',
+      requestMeta: { ip: req.ip },
+    });
   } catch (err) {
-    if (err.code === 'email_already_registered') {
-      return res.status(409).json({ error: 'email_already_registered' });
-    }
+    const status = SIGNUP_ERROR_STATUS[err.code];
+    if (status) return res.status(status).json({ error: err.code });
     throw err;
   }
 
@@ -110,7 +127,7 @@ router.post('/signup', loginLimiter, (req, res) => {
   req.session.regenerate((err) => {
     if (err) return res.status(500).json({ error: 'session_error' });
     req.session.userId = user.id;
-    auditLog.log(db, { actorUserId: user.id, action: 'signup_succeeded' });
+    auditLog.log(db, { actorUserId: user.id, action: 'signup_succeeded', details: { ip: req.ip } });
     res.status(201).json({ user: publicUser(user), orgId: provisioned.orgId, scopeId: provisioned.scopeId });
   });
 });

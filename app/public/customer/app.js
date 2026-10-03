@@ -216,7 +216,7 @@ async function renderEvidence() {
   const connectedTypes = new Set(connectors.map(c => c.connector_type));
   const available = state.connectorTypes.filter(t => !connectedTypes.has(t.id));
 
-  el.innerHTML = `<h1>Evidence &amp; Connectors</h1>
+  el.innerHTML = `<h1>LaurelEvidence&trade; <small class="brand-tag">Evidence &amp; Connectors</small></h1>
     <p class="muted">Stage 3: collect evidence via read-only connectors, operational tests, and manual documentation. Every item carries source, timestamp, and hash-based chain of custody.</p>
     ${scopeBanner()}
     <div class="card">
@@ -367,7 +367,7 @@ async function renderControls() {
   const byDomain = {};
   controls.forEach(c => { (byDomain[c.domain] = byDomain[c.domain] || []).push(c); });
 
-  el.innerHTML = `<h1>Control Results</h1>
+  el.innerHTML = `<h1>ControlProof&trade; <small class="brand-tag">Control Results</small></h1>
     <p class="muted">Stage 4-5: canonical control status, Evidence Confidence Level (ECL 0-5), coverage, and freshness.</p>
     ${scopeBanner()}
     <div class="card"><button class="btn secondary small" id="btnFreshness">Run Freshness Check</button> <span class="small muted">Downgrades any claim whose evidence has aged past its freshness threshold.</span></div>
@@ -392,8 +392,8 @@ async function renderSuppliers() {
   const el = document.getElementById('sec-suppliers');
   if (!state.currentScopeId) { el.innerHTML = scopeBanner(); return; }
   const { suppliers } = await api(`/api/customer/scopes/${state.currentScopeId}/suppliers`);
-  el.innerHTML = `<h1>Supplier Graph</h1>
-    <p class="muted">Onboarding Guide Section 4/8: third parties that create contingent exposure, such as cloud, MSP, SaaS, payment, and email providers. Laurelshield uses this to trace a supplier incident to every affected control and, at the portfolio level, to flag concentration risk across insureds.</p>
+  el.innerHTML = `<h1>AssureGraph&trade; <small class="brand-tag">Supplier Graph</small></h1>
+    <p class="muted">Onboarding Guide Section 4/8: third parties that create contingent exposure, such as cloud, MSP, SaaS, payment, and email providers. Congruentshield uses this to trace a supplier incident to every affected control and, at the portfolio level, to flag concentration risk across insureds.</p>
     ${scopeBanner()}
     <div id="supplierList"></div>
     <div class="card">
@@ -453,7 +453,7 @@ async function renderRemediation() {
   if (!state.currentScopeId) { el.innerHTML = scopeBanner(); return; }
   const { items } = await api(`/api/customer/scopes/${state.currentScopeId}/remediation`);
   el.innerHTML = `<h1>Remediation</h1>
-    <p class="muted">Stage 7-8: findings requiring action. Marking an item "remediated" queues it for <b>independent re-verification</b> by Laurelshield Assurance Operations. The same person who fixes an issue can never be the one who closes it.</p>
+    <p class="muted">Stage 7-8: findings requiring action. Marking an item "remediated" queues it for <b>independent re-verification</b> by Congruentshield Assurance Operations. The same person who fixes an issue can never be the one who closes it.</p>
     ${scopeBanner()}
     <div class="table-wrap"><table>
       <tr><th>Control</th><th>Finding</th><th>Owner</th><th>Status</th><th>Due</th><th></th></tr>
@@ -478,8 +478,8 @@ async function renderRemediation() {
 async function renderPassport() {
   const el = document.getElementById('sec-passport');
   const { passports } = await api('/api/customer/passports');
-  el.innerHTML = `<h1>Cyber Risk Passport</h1>
-    <p class="muted">Stage 9: a signed, portable evidence credential. Raw configuration stays in the Evidence Vault; the passport carries only verified claims, ECL, and freshness.</p>
+  el.innerHTML = `<h1>LaurelProof&trade; <small class="brand-tag">Cyber Risk Passport</small></h1>
+    <p class="muted">Stage 9: a signed, portable evidence credential. Raw configuration stays in the LaurelVault&trade; (Evidence Vault); the passport carries only verified claims, ECL, and freshness.</p>
     ${state.currentScopeId ? `<div class="card"><button class="btn" id="btnIssue">Issue New Passport for Current Scope</button></div>` : scopeBanner()}
     <div id="passportList"></div>`;
 
@@ -515,7 +515,7 @@ function renderPassportDetail(detail) {
       <div>
         <div class="passport-code">${passport.passport_code}</div>
         <div class="small muted">Issued ${fmtDate(passport.issued_at)} · ${verifiedCount}/${totalControls} controls verified</div>
-        <div class="${integrityValid ? 'integrity-ok' : 'integrity-bad'}">${integrityValid ? '✓ Signature verified: evidence lineage intact' : '⚠ Signature verification failed'}</div>
+        <div class="${integrityValid ? 'integrity-ok' : 'integrity-bad'}">${integrityValid ? '✓ LaurelTrust&trade; signature verified: evidence lineage intact' : '⚠ LaurelTrust&trade; check failed: signature verification failed'}</div>
       </div>
       <div style="text-align:right;">
         ${badge(passport.status)}
@@ -616,7 +616,7 @@ async function renderAppeals() {
 async function renderAudit() {
   const el = document.getElementById('sec-audit');
   const { entries } = await api('/api/customer/audit');
-  el.innerHTML = `<h1>Audit Trail</h1>
+  el.innerHTML = `<h1>AssuranceLedger&trade; <small class="brand-tag">Audit Trail</small></h1>
     <p class="muted">Section 5.8: every access to your evidence and passports is logged and visible to you.</p>
     <div class="table-wrap"><table>
       <tr><th>When</th><th>Actor</th><th>Action</th><th>Resource</th></tr>
@@ -660,8 +660,8 @@ const HELP_TOPICS = [
     tip: 'One scope per legal entity or operating region is the usual pattern. If your organization has genuinely separate business units with different security postures, register each as its own scope rather than blending them into one.',
   },
   {
-    key: 'evidence', icon: 'evidence', title: 'Evidence &amp; Connectors',
-    purpose: 'This is how Laurelshield actually learns about your environment: connectors, operational tests, and manual documentation, each carrying source, timestamp, and hash-based chain of custody.',
+    key: 'evidence', icon: 'evidence', title: 'LaurelEvidence&trade; (Evidence &amp; Connectors)',
+    purpose: 'This is how Congruentshield actually learns about your environment: connectors, operational tests, and manual documentation, each carrying source, timestamp, and hash-based chain of custody.',
     sees: [
       'Connected Evidence Sources: up to seven connector types (Identity Provider, Endpoint Detection & Response, Backup & Recovery, External Attack Surface Scanner, Email Security & DNS, Cloud Platform, SIEM/Log Management), each showing connection status, last sync time, and whether it is running in Simulated or Live mode.',
       'Operational Tests: buttons to run a restore test or an incident response tabletop exercise, the only way to reach ECL-4 evidence (proof a control actually works, not just that it is configured).',
@@ -678,7 +678,7 @@ const HELP_TOPICS = [
     tip: 'Sync your connectors on a regular cadence, not just once. Evidence has a freshness window per control (see Cyber Risk Passport and the continuous assurance concept), and a control that goes too long without a refresh will show as expired even if nothing about your actual environment changed.',
   },
   {
-    key: 'suppliers', icon: 'suppliers', title: 'Supplier Graph',
+    key: 'suppliers', icon: 'suppliers', title: 'AssureGraph&trade; (Supplier Graph)',
     purpose: 'Your extended attack surface: the third parties you depend on that could cause a loss even if every one of your own controls is perfect.',
     sees: [
       'Registered suppliers with a criticality badge (critical, high, medium, low), the service they provide, and which canonical controls that relationship affects.',
@@ -690,7 +690,7 @@ const HELP_TOPICS = [
       'Select every canonical control this supplier relationship affects, for example a cloud hosting provider typically touches your Cloud domain controls and your backup controls.',
       'Set criticality honestly. Critical plus "no alternative provider" is exactly the combination that matters most.',
     ],
-    keypoint: 'At the portfolio level, Laurelshield flags "concentration risk": a supplier that serves multiple insureds at once, meaning a single incident at that supplier becomes a multi-policy loss event. This is genuinely useful information for your carrier, not just paperwork, keeping this list accurate and current is one of the highest-leverage things you can do in the portal.',
+    keypoint: 'At the portfolio level, Congruentshield flags "concentration risk": a supplier that serves multiple insureds at once, meaning a single incident at that supplier becomes a multi-policy loss event. This is genuinely useful information for your carrier, not just paperwork, keeping this list accurate and current is one of the highest-leverage things you can do in the portal.',
     tip: 'Revisit this list whenever you change vendors or renew a major contract. A stale supplier graph understates your real dependency risk.',
   },
   {
@@ -705,19 +705,19 @@ const HELP_TOPICS = [
       'An Assurance Operations reviewer, someone independent of the fix, confirms closure. Only then does the item move to Closed.',
     ],
     keypoint: 'This separation of duties is enforced by the platform, not just a policy on paper. It exists because self-graded remediation is exactly the kind of gap a claims investigator looks for after a breach: "you said you fixed it, who confirmed that?"',
-    tip: 'Do not wait until a renewal deadline to start working your remediation queue. The independent confirmation step takes real turnaround time on Laurelshield\'s side, build in a buffer.',
+    tip: 'Do not wait until a renewal deadline to start working your remediation queue. The independent confirmation step takes real turnaround time on Congruentshield\'s side, build in a buffer.',
   },
   {
-    key: 'passport', icon: 'passport', title: 'Cyber Risk Passport',
-    purpose: 'Your signed, portable, revocable credential: the thing you actually hand to a broker or carrier instead of re-answering their questionnaire from scratch.',
+    key: 'passport', icon: 'passport', title: 'LaurelProof&trade; (Cyber Risk Passport)',
+    purpose: 'Your signed, portable, revocable credential: the thing you actually hand to a broker or carrier instead of re-answering their questionnaire from scratch. Raw configuration itself never leaves the LaurelVault&trade; (Evidence Vault); only verified claims travel with the passport.',
     sees: [
-      'Your passport code (for example LS-CRP-CA-000184), issue date, overall status (verified or conditional), a signature-verified confirmation line, and the full table of every canonical control with its status, ECL, and coverage percentage.',
+      'Your passport code (for example LS-CRP-CA-000184), issue date, overall status (verified or conditional), a LaurelTrust&trade; signature-verified confirmation line, and the full table of every canonical control with its status, ECL, and coverage percentage.',
       'An Issue New Passport button and, on an existing passport, a Revoke button.',
     ],
     steps: [
       'Once you are satisfied with your control coverage on Overview and Control Results, click Issue New Passport for Current Scope.',
       'Check the status: Verified means no material gaps, Conditional means some controls need attention but nothing severe enough to withhold the passport.',
-      'Review the "Signature verified" line, this confirms the passport has not been tampered with since issuance.',
+      'Review the "LaurelTrust&trade; signature verified" line, this confirms the passport has not been tampered with since issuance.',
       'Use Sharing & Consent (next section) to actually give a partner access to it.',
     ],
     warning: 'Revocation is permanent in this build, there is no undo. Only revoke a passport you genuinely want to withdraw, then issue a fresh one when ready.',
@@ -736,8 +736,8 @@ const HELP_TOPICS = [
       'Click Share. The partner can now view a translated version of your passport for as long as the grant is active.',
       'Click Revoke on any grant at any time to end access early.',
     ],
-    keypoint: 'A carrier never sees your raw canonical results. Laurelshield translates your verified controls into that carrier\'s own proprietary question wording and thresholds, a confidential mapping layer that is never exposed to you, other carriers, or brokers. You only ever see the resulting readiness classification, the underlying weighting is the carrier\'s and Laurelshield\'s trade secret, not yours to see either, by design, it keeps the process fair to every insured being compared.',
-    tip: 'Every time a partner actually opens your shared passport, it is logged. Check Audit Trail if you want to know whether they have actually looked yet, not just whether you sent the invite.',
+    keypoint: 'A carrier never sees your raw canonical results. Congruentshield translates your verified controls into that carrier\'s own proprietary question wording and thresholds, a confidential mapping layer that is never exposed to you, other carriers, or brokers. You only ever see the resulting readiness classification, the underlying weighting is the carrier\'s and Congruentshield\'s trade secret, not yours to see either, by design, it keeps the process fair to every insured being compared.',
+    tip: 'Every time a partner actually opens your shared passport, it is logged. Check AssuranceLedger&trade; (Audit Trail) if you want to know whether they have actually looked yet, not just whether you sent the invite.',
   },
   {
     key: 'appeals', icon: 'appeal', title: 'Appeals',
@@ -755,7 +755,7 @@ const HELP_TOPICS = [
     tip: 'Vague appeals take longer to resolve than specific ones. "I disagree with LS-ID-104" resolves faster than "this seems wrong."',
   },
   {
-    key: 'audit', icon: 'audit', title: 'Audit Trail',
+    key: 'audit', icon: 'audit', title: 'AssuranceLedger&trade; (Audit Trail)',
     purpose: 'Radical transparency: a record of every action touching your organization\'s data, including every time a broker or carrier partner actually accessed something you shared with them.',
     sees: [
       'A chronological table: when, who (or which system process), what action, and what resource it touched.',
@@ -772,17 +772,17 @@ const HELP_TOPICS = [
     sees: [
       'Appearance: switch between Light and Dark. This is saved to this browser only, it does not sync to other devices or other people at your organization.',
       'Multi-Factor Authentication: enable a second factor using any TOTP authenticator app (Microsoft Authenticator, Google Authenticator, 1Password, Authy, and similar), see how many one-time recovery codes you have left, disable MFA, or generate a fresh set of recovery codes.',
-      'Single Sign-On, shown only for accounts tied to an organization: configure your own identity provider so everyone at your organization can sign in without ever having a Laurelshield password.',
+      'Single Sign-On, shown only for accounts tied to an organization: configure your own identity provider so everyone at your organization can sign in without ever having a Congruentshield password.',
     ],
     steps: [
       'Open Account Settings from the gear icon next to Sign out, top right of every page.',
       'Under Appearance, click Light or Dark, the whole portal switches instantly, no save button needed.',
       'Under Multi-Factor Authentication, click Enable MFA, scan the QR code with your authenticator app (or enter the setup key by hand), then type the 6-digit code it generates to confirm.',
       'Immediately after enabling MFA, save the 10 recovery codes shown on screen somewhere safe, for example a password manager. Each one signs you in exactly once if you ever lose access to your authenticator app.',
-      'If your organization runs its own identity provider, fill in Single Sign-On: your email domain, issuer URL, client ID, and client secret, then click Test Configuration to confirm Laurelshield can actually reach it before saving.',
+      'If your organization runs its own identity provider, fill in Single Sign-On: your email domain, issuer URL, client ID, and client secret, then click Test Configuration to confirm Congruentshield can actually reach it before saving.',
     ],
     warning: 'Recovery codes and the MFA setup key are shown only once, at the moment they are generated. If you lose them and also lose your authenticator device, an administrator will need to help you back into your account.',
-    keypoint: 'Single sign-on signs in an existing Laurelshield account matched by email address, it does not create new accounts or grant roles by itself. Who has an account at all, and what role they hold, is still decided separately when the account is provisioned.',
+    keypoint: 'Single sign-on signs in an existing Congruentshield account matched by email address, it does not create new accounts or grant roles by itself. Who has an account at all, and what role they hold, is still decided separately when the account is provisioned.',
     tip: 'Enabling MFA is one of the highest-value five minutes you can spend in this portal: it protects the same login that can issue, share, and revoke your organization\'s Cyber Risk Passport.',
   },
 ];
@@ -790,7 +790,7 @@ const HELP_TOPICS = [
 async function renderHelp() {
   const el = document.getElementById('sec-help');
   el.innerHTML = `<h1>Help &amp; Documentation</h1>
-    <p class="muted">A detailed guide to every section of your Laurelshield customer portal: what it is for, what you are looking at, and exactly how to use it.</p>
+    <p class="muted">A detailed guide to every section of your Congruentshield customer portal: what it is for, what you are looking at, and exactly how to use it.</p>
     <div class="card">
       <h3>Jump to a topic</h3>
       <div class="quick-tiles">
@@ -833,7 +833,7 @@ async function renderAccountSettings() {
 
     ${state.user.orgId ? `<div class="card">
       <h3>Single Sign-On</h3>
-      <p class="small muted">Let everyone at your organization sign in through your own identity provider (Okta, Microsoft Entra ID, Google Workspace, Ping, Auth0, or any other OpenID Connect provider) instead of a Laurelshield password.</p>
+      <p class="small muted">Let everyone at your organization sign in through your own identity provider (Okta, Microsoft Entra ID, Google Workspace, Ping, Auth0, or any other OpenID Connect provider) instead of a Congruentshield password.</p>
       <div id="ssoPanel"></div>
     </div>` : ''}`;
 

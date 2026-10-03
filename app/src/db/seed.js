@@ -94,9 +94,9 @@ function seedOrgsAndUsers() {
 
   const hash = bcrypt.hashSync(DEMO_PASSWORD, 10);
   const insertUser = db.prepare(`INSERT INTO users (org_id, email, password_hash, full_name, role) VALUES (?, ?, ?, ?, ?)`);
-  insertUser.run(null, 'admin@laurelshield.internal', hash, 'Priya Nandakumar (Scheme Manager / Admin)', 'ls_admin');
-  insertUser.run(null, 'assessor@laurelshield.internal', hash, 'Marcus Alonzo (Technical Assessor)', 'ls_assessor');
-  insertUser.run(null, 'decisions@laurelshield.internal', hash, 'Dr. Elena Vasquez (Assurance Decision Officer)', 'ls_decision_officer');
+  insertUser.run(null, 'admin@congruentshield.internal', hash, 'Priya Nandakumar (Scheme Manager / Admin)', 'ls_admin');
+  insertUser.run(null, 'assessor@congruentshield.internal', hash, 'Marcus Alonzo (Technical Assessor)', 'ls_assessor');
+  insertUser.run(null, 'decisions@congruentshield.internal', hash, 'Dr. Elena Vasquez (Assurance Decision Officer)', 'ls_decision_officer');
   insertUser.run(abc, 'admin@abcmanufacturing.example', hash, 'Grace Thompson (CISO)', 'customer_admin');
   insertUser.run(meridian, 'admin@meridianhealth.example', hash, 'Daniel Osei (IT Director)', 'customer_admin');
   insertUser.run(granitePeak, 'broker@granitepeak.example', hash, 'Sofia Marchetti (Cyber Broker)', 'broker');
@@ -325,7 +325,7 @@ function run() {
     const { abcScopeId, meridianScopeId } = seedScopes(abc, meridian);
     seedAbcEvidence(abcScopeId);
     const passportId = seedAbcPassport(abc, abcScopeId);
-    const adminUserId = db.prepare(`SELECT id FROM users WHERE email='admin@laurelshield.internal'`).get().id;
+    const adminUserId = db.prepare(`SELECT id FROM users WHERE email='admin@congruentshield.internal'`).get().id;
     seedSharing(passportId, brokerPartnerId, northstarPartnerId, adminUserId);
     seedCarrierRequirements(northstarPartnerId, continentalPartnerId);
     seedSuppliers(abcScopeId, meridianScopeId);

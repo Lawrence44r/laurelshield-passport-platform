@@ -50,7 +50,7 @@ async function renderPortfolio() {
   const el = document.getElementById('sec-portfolio');
   const { portfolio } = await api('/api/broker/portfolio');
   el.innerHTML = `<h1>Client Portfolio</h1>
-    <p class="muted">Passports your clients have authorized you to view (Stage 10). Referral triggers (Section 8.2) flag where a technical follow-up would help before submission.</p>
+    <p class="muted">Passports your clients have authorized you to view (Stage 10). LaurelSignal&trade; referral triggers (Section 8.2) flag where a technical follow-up would help before submission.</p>
     <div class="section-label">Resources</div>
     ${portfolio.length ? portfolio.map(g => `
       <div class="card">
@@ -58,7 +58,7 @@ async function renderPortfolio() {
           <div><b>${escapeHtml(g.orgName)}</b><br><span class="small muted">${g.passportCode} · ${escapeHtml(g.purpose)} · expires ${fmtDate(g.expiresAt)}</span></div>
           <div>${badge(g.status)}</div>
         </div>
-        <div style="margin-top:8px;">${g.triggers.length ? g.triggers.map(t => `<span class="trigger-chip">${TRIGGER_LABELS[t] || t}</span>`).join('') : '<span class="small muted">No referral triggers. Ready for submission.</span>'}</div>
+        <div style="margin-top:8px;">${g.triggers.length ? `<span class="small muted" style="margin-right:6px;">LaurelSignal&trade;:</span>` + g.triggers.map(t => `<span class="trigger-chip">${TRIGGER_LABELS[t] || t}</span>`).join('') : '<span class="small muted">No referral triggers. Ready for submission.</span>'}</div>
         <button class="btn small secondary" style="margin-top:10px;" data-view="${g.passportId}">View Evidence Detail</button>
         <div id="detail-${g.passportId}" style="margin-top:10px;"></div>
       </div>`).join('') : '<div class="empty-state">No clients have shared a passport with you yet.</div>'}`;
@@ -102,7 +102,7 @@ async function renderAccountSettings() {
 
     ${state.user.orgId ? `<div class="card">
       <h3>Single Sign-On</h3>
-      <p class="small muted">Let everyone at your organization sign in through your own identity provider (Okta, Microsoft Entra ID, Google Workspace, Ping, Auth0, or any other OpenID Connect provider) instead of a Laurelshield password.</p>
+      <p class="small muted">Let everyone at your organization sign in through your own identity provider (Okta, Microsoft Entra ID, Google Workspace, Ping, Auth0, or any other OpenID Connect provider) instead of a Congruentshield password.</p>
       <div id="ssoPanel"></div>
     </div>` : ''}`;
 
@@ -231,14 +231,14 @@ async function renderSsoPanel() {
 const HELP_TOPICS = [
   {
     key: 'portfolio', icon: 'portfolio', title: 'Portfolio',
-    purpose: 'Every passport a client has authorized you to view, plus referral triggers that flag where a technical follow-up would help before submission to a carrier.',
+    purpose: 'Every passport a client has authorized you to view, plus LaurelSignal&trade; referral triggers that flag where a technical follow-up would help before submission to a carrier.',
     sees: [
       'Each authorized client passport: organization name, passport code, purpose, expiry date, and overall status.',
-      'Referral triggers: chips like Unverified MFA, Backup Concern, EDR Gap, External Exposure, or Renewal Readiness, when applicable.',
+      'LaurelSignal&trade; referral triggers: chips like Unverified MFA, Backup Concern, EDR Gap, External Exposure, or Renewal Readiness, when applicable.',
       'View Evidence Detail: the full control-by-control breakdown behind the passport.',
     ],
     steps: [
-      'Review referral triggers first. They exist to save you from submitting a client to market with a gap a carrier will likely flag anyway.',
+      'Review LaurelSignal&trade; referral triggers first. They exist to save you from submitting a client to market with a gap a carrier will likely flag anyway.',
       'Click View Evidence Detail to see the underlying control status, ECL, and coverage for any passport.',
       'If a client\'s access has expired or been revoked, it will no longer appear here, ask them to renew the sharing grant from their own Sharing &amp; Consent screen.',
     ],
@@ -250,7 +250,7 @@ const HELP_TOPICS = [
     sees: [
       'Appearance: switch between Light and Dark. Saved to this browser only.',
       'Multi-Factor Authentication: enable a second factor using any TOTP authenticator app, see how many one-time recovery codes remain, disable MFA, or generate a fresh set of recovery codes.',
-      'Single Sign-On: configure your own identity provider so everyone at your brokerage signs in through it instead of a Laurelshield password.',
+      'Single Sign-On: configure your own identity provider so everyone at your brokerage signs in through it instead of a Congruentshield password.',
     ],
     steps: [
       'Open Account Settings from the gear icon next to Sign out, top right.',
@@ -260,7 +260,7 @@ const HELP_TOPICS = [
       'Under Single Sign-On, fill in your email domain, issuer URL, client ID, and client secret, then click Test Configuration before saving.',
     ],
     warning: 'Recovery codes are shown only once, at the moment they are generated. Store them somewhere safe.',
-    keypoint: 'Single sign-on signs in an existing Laurelshield account matched by email address, it does not create new accounts or grant roles on its own.',
+    keypoint: 'Single sign-on signs in an existing Congruentshield account matched by email address, it does not create new accounts or grant roles on its own.',
     tip: 'This login can see every client passport your brokerage has been authorized to view. Enable MFA before anything else on this list.',
   },
 ];

@@ -1,4 +1,4 @@
-// Supplier dependency graph (Laurelshield Suite build guide Sections 10-11;
+// Supplier dependency graph (Congruentshield Suite build guide Sections 10-11;
 // Ops Guide Section 8). Suppliers are scoped to an insured's assurance
 // boundary and linked to the canonical controls/clauses they affect, so a
 // supplier incident can be traced to every downstream insured and control.

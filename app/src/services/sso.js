@@ -3,7 +3,7 @@
 // provider an organization brings (Okta, Microsoft Entra ID, Google
 // Workspace, Ping Identity, Auth0, ADFS with its OIDC endpoint, etc.), the
 // same way a browser works with any spec-compliant web server. There is
-// nothing Laurelshield-specific or vendor-specific in this file.
+// nothing Congruentshield-specific or vendor-specific in this file.
 //
 // SAML 2.0 is the natural next protocol to add for organizations whose IdP
 // is SAML-only, using the same sso_configs table (protocol='saml') and the

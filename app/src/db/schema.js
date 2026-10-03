@@ -1,11 +1,11 @@
-// SQLite schema for the Laurelshield Cyber Risk Passport Platform.
+// SQLite schema for the Congruentshield Cyber Risk Passport Platform.
 // Applied idempotently on boot via CREATE TABLE IF NOT EXISTS.
 
 const SCHEMA_SQL = `
 PRAGMA foreign_keys = ON;
 
 -- Organizations: customers, brokers, and carriers are all "organizations"
--- distinguished by org_type. Laurelshield staff are not tied to an org.
+-- distinguished by org_type. Congruentshield staff are not tied to an org.
 CREATE TABLE IF NOT EXISTS organizations (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   org_type TEXT NOT NULL CHECK (org_type IN ('customer','broker','carrier')),
@@ -95,7 +95,7 @@ CREATE TABLE IF NOT EXISTS evidence (
   classification TEXT NOT NULL DEFAULT 'restricted_security_evidence'
     CHECK (classification IN (
       'public','customer_confidential','restricted_security_evidence',
-      'carrier_confidential_mapping','laurelshield_trade_secret','claims_outcome_restricted'
+      'carrier_confidential_mapping','congruentshield_trade_secret','claims_outcome_restricted'
     ))
 );
 
@@ -226,7 +226,7 @@ CREATE TABLE IF NOT EXISTS access_log (
   at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
--- Supplier dependency graph (Laurelshield Suite Ops Guide Section 8). One row
+-- Supplier dependency graph (Congruentshield Suite Ops Guide Section 8). One row
 -- per third party an insured depends on; linked to the controls/clauses it
 -- affects so a supplier incident can be traced to every downstream insured.
 CREATE TABLE IF NOT EXISTS suppliers (

@@ -35,22 +35,32 @@ function requireProvisionSecret(req, res, next) {
   next();
 }
 
+// Same centralized validation as the self-serve signup route (routes/auth.js)
+// -- a Stripe-originated company name is still attacker-influenced data (a
+// customer typed it into a Checkout custom field) and gets the same
+// sanitization; the generated password is random and will trivially clear
+// the strength checks.
+const PROVISION_ERROR_STATUS = {
+  company_name_email_and_password_required: 400,
+  invalid_email: 400,
+  password_too_short: 400,
+  password_too_common: 400,
+  email_already_registered: 409,
+};
+
 router.post('/provision-org', provisionLimiter, requireProvisionSecret, (req, res) => {
   const { companyName, email, password, fullName, jurisdiction, source } = req.body || {};
-  if (!companyName || !email || !password) {
-    return res.status(400).json({ error: 'company_name_email_and_password_required' });
-  }
 
   let provisioned;
   try {
     provisioned = provisioning.createOrgAndAdmin(db, {
       companyName, email, password, fullName, jurisdiction,
       actorLabel: `system:provision_webhook:${source || 'unknown'}`,
+      requestMeta: { source: source || 'unknown' },
     });
   } catch (err) {
-    if (err.code === 'email_already_registered') {
-      return res.status(409).json({ error: 'email_already_registered' });
-    }
+    const status = PROVISION_ERROR_STATUS[err.code];
+    if (status) return res.status(status).json({ error: err.code });
     throw err;
   }
 

@@ -45,7 +45,7 @@ async function init() {
 async function renderPortfolio() {
   const el = document.getElementById('sec-portfolio');
   const { portfolio } = await api('/api/carrier/portfolio');
-  el.innerHTML = `<h1>Underwriting Portfolio</h1>
+  el.innerHTML = `<h1>LaurelLens&trade; <small class="brand-tag">Underwriting Portfolio</small></h1>
     <p class="muted">Passports authorized for your review, translated into your organization's own requirement wording (Stage 6, Section 6.3). You see the resulting readiness classification only, never another carrier's mapping, weighting, or thresholds.</p>
 
     <div class="section-label">Quick Actions</div>
@@ -111,7 +111,7 @@ function renderSupplierList(suppliers) {
 async function renderSupplierConcentration() {
   const el = document.getElementById('sec-suppliers');
   const { report } = await api('/api/carrier/portfolio/supplier-concentration');
-  el.innerHTML = `<h1>Supplier Concentration (Your Portfolio)</h1>
+  el.innerHTML = `<h1>AssureGraph&trade; <small class="brand-tag">Supplier Concentration (Your Portfolio)</small></h1>
     <p class="muted">Suppliers shared by more than one insured in your shared portfolio, where the same outage or breach becomes a multi-policy loss event. Scoped to only the insureds who have shared a passport with you.</p>
     <div class="table-wrap"><table>
       <tr><th>Supplier</th><th>Insureds in Your Portfolio</th><th>Highest Criticality</th><th>Detail</th></tr>
@@ -195,7 +195,7 @@ async function renderAccountSettings() {
 
     ${state.user.orgId ? `<div class="card">
       <h3>Single Sign-On</h3>
-      <p class="small muted">Let everyone at your organization sign in through your own identity provider (Okta, Microsoft Entra ID, Google Workspace, Ping, Auth0, or any other OpenID Connect provider) instead of a Laurelshield password.</p>
+      <p class="small muted">Let everyone at your organization sign in through your own identity provider (Okta, Microsoft Entra ID, Google Workspace, Ping, Auth0, or any other OpenID Connect provider) instead of a Congruentshield password.</p>
       <div id="ssoPanel"></div>
     </div>` : ''}`;
 
@@ -323,21 +323,21 @@ async function renderSsoPanel() {
 // ----------------------------------------------------------------- Help
 const HELP_TOPICS = [
   {
-    key: 'portfolio', icon: 'portfolio', title: 'Portfolio',
+    key: 'portfolio', icon: 'portfolio', title: 'LaurelLens&trade; (Portfolio)',
     purpose: 'Every passport an insured has authorized you to review, translated into your organization\'s own requirement wording.',
     sees: [
       'Each authorized passport: insured name, passport code, overall status, and a readiness percentage.',
-      'View Translated Evidence: your own requirement labels mapped to Laurelshield\'s canonical controls, with a Pass, Conditional, Evidence Expiring, or Material Gap result.',
+      'View Translated Evidence: your own requirement labels mapped to Congruentshield\'s canonical controls, with a Pass, Conditional, Evidence Expiring, or Material Gap result.',
       'View Supplier Graph: the insured\'s registered third-party dependencies, if you have been given access.',
     ],
     steps: [
       'Click View Translated Evidence on any passport to see the full control-by-control breakdown in your own wording.',
       'Click View Supplier Graph to see what third parties this insured depends on.',
     ],
-    keypoint: 'You see the resulting readiness classification only, never another carrier\'s mapping, weighting, or thresholds, and never the insured\'s raw canonical results outside your own translated view. This is deliberate: your proprietary underwriting questions and thresholds stay confidential from everyone else, exactly as Laurelshield keeps every other carrier\'s confidential from you.',
+    keypoint: 'You see the resulting readiness classification only, never another carrier\'s mapping, weighting, or thresholds, and never the insured\'s raw canonical results outside your own translated view. This is deliberate: your proprietary underwriting questions and thresholds stay confidential from everyone else, exactly as Congruentshield keeps every other carrier\'s confidential from you.',
   },
   {
-    key: 'suppliers', icon: 'suppliers', title: 'Supplier Concentration',
+    key: 'suppliers', icon: 'suppliers', title: 'AssureGraph&trade; (Supplier Concentration)',
     purpose: 'Which suppliers appear across more than one insured in your own shared portfolio, flagging multi-policy loss exposure specific to your book of business.',
     sees: ['Supplier name, how many of your insureds depend on it, highest criticality, and the detail per insured.'],
     tip: 'This view is scoped strictly to insureds who have shared a passport with you. It will never show a supplier concentration involving an insured you don\'t have access to.',
@@ -347,7 +347,7 @@ const HELP_TOPICS = [
     purpose: 'Sealed, tamper-evident evidence packages released to you for claims you are handling.',
     sees: ['Each released pack: insured, incident date, the frozen evidence window, and the manifest hash.', 'View Evidence Manifest: the full control snapshot, supplier graph snapshot, and evidence object list as of the sealed moment.'],
     steps: ['Click View Evidence Manifest on any pack to see exactly what security posture looked like during the frozen window around the incident.'],
-    keypoint: 'Every pack was reviewer-approved by Laurelshield Assurance Operations before release, and its manifest hash lets you verify it hasn\'t been altered since sealing.',
+    keypoint: 'Every pack was reviewer-approved by Congruentshield Assurance Operations before release, and its manifest hash lets you verify it hasn\'t been altered since sealing.',
   },
   {
     key: 'account', icon: 'account', title: 'Account Settings',
@@ -355,7 +355,7 @@ const HELP_TOPICS = [
     sees: [
       'Appearance: switch between Light and Dark. Saved to this browser only.',
       'Multi-Factor Authentication: enable a second factor using any TOTP authenticator app, see how many one-time recovery codes remain, disable MFA, or generate a fresh set of recovery codes.',
-      'Single Sign-On: configure your own identity provider so everyone at your organization signs in through it instead of a Laurelshield password.',
+      'Single Sign-On: configure your own identity provider so everyone at your organization signs in through it instead of a Congruentshield password.',
     ],
     steps: [
       'Open Account Settings from the gear icon next to Sign out, top right.',
@@ -365,7 +365,7 @@ const HELP_TOPICS = [
       'Under Single Sign-On, fill in your email domain, issuer URL, client ID, and client secret, then click Test Configuration before saving.',
     ],
     warning: 'Recovery codes are shown only once, at the moment they are generated. Store them somewhere safe.',
-    keypoint: 'Single sign-on signs in an existing Laurelshield account matched by email address, it does not create new accounts or grant roles on its own.',
+    keypoint: 'Single sign-on signs in an existing Congruentshield account matched by email address, it does not create new accounts or grant roles on its own.',
     tip: 'This login can view translated evidence and sealed claim evidence packs for every insured that has shared with your organization. Enable MFA before anything else on this list.',
   },
 ];

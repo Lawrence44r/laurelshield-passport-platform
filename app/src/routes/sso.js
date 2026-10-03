@@ -74,7 +74,7 @@ router.get('/callback', ssoLimiter, async (req, res) => {
 
     // Deliberately conservative: SSO signs in an existing local account
     // matched by email within this organization, it does not auto-create
-    // one. Who gets which role in Laurelshield is a decision made when the
+    // one. Who gets which role in Congruentshield is a decision made when the
     // account is provisioned, not something an IdP claim should grant
     // silently on first login.
     const user = db.prepare(`SELECT * FROM users WHERE org_id = ? AND email = ? AND active = 1`).get(config.org_id, email);
@@ -96,7 +96,7 @@ router.get('/callback', ssoLimiter, async (req, res) => {
 });
 
 // ---- Org-scoped self-service configuration (customer_admin/broker/carrier
-// for their own organization only - not Laurelshield staff, who have no
+// for their own organization only - not Congruentshield staff, who have no
 // org_id and no SSO surface of their own). ----
 router.use('/config', requireAuth);
 

@@ -7,7 +7,7 @@ const bcrypt = require('bcryptjs');
 const { authenticator } = require('otplib');
 const QRCode = require('qrcode');
 
-const ISSUER = 'Laurelshield';
+const ISSUER = 'Congruentshield';
 const RECOVERY_CODE_COUNT = 10;
 
 function generateSecret() {
