@@ -4,29 +4,42 @@
 # everything marked `sync: false` must be set once in the dashboard after
 # the service is created (Settings -> Environment).
 #
-# IMPORTANT -- read before deploying: the `starter` plan below includes a
-# small persistent disk mounted at /app/data, because this app stores its
-# SQLite database as a single file on disk (better-sqlite3). The Render
-# `free` plan has NO persistent disk -- every deploy or restart would
-# silently wipe the database, including any real customer signups. Do not
-# downgrade to `free` for anything beyond a disposable demo.
+# Currently set to the FREE plan, deliberately -- for validating the app
+# publicly before any real customer data needs to survive. Read this before
+# relying on it for anything else:
+#
+# Render's free web services spin down after every 15 minutes with no
+# traffic, and a free service cannot have a persistent disk at all (that's
+# a paid-plan-only feature). This app stores everything -- every org, user,
+# claim, and passport -- in a single SQLite file on local disk
+# (better-sqlite3). On the free plan, that file is wiped on every spin-down,
+# which at low traffic means repeatedly per day, not just on deploys.
+#
+# That's fine for demoing/testing the app itself -- losing a demo org back
+# to empty is a non-event. It stops being fine the moment a real signup
+# happens that needs to survive. The trigger to upgrade: the first time you
+# want data to persist, switch `plan` below to `starter` ($7/mo), uncomment
+# the `disk:` block, and point DB_PATH (below) at the mounted path -- no
+# code change needed, DB_PATH already comes from this env var. A fresh
+# Starter deploy starts with an empty database either way, so there is
+# nothing to migrate or re-sign at that point.
 services:
   - type: web
     name: laurelshield-passport-platform
     runtime: node
-    plan: starter
+    plan: free
     buildCommand: npm install
     startCommand: npm start
     healthCheckPath: /health
-    disk:
-      name: passport-platform-data
-      mountPath: /app/data
-      sizeGB: 1
+    # disk:
+    #   name: passport-platform-data
+    #   mountPath: /app/data
+    #   sizeGB: 1
     envVars:
       - key: NODE_ENV
         value: production
       - key: DB_PATH
-        value: /app/data/laurelshield.db
+        value: ./data/laurelshield.db
       - key: SESSION_SECRET
         sync: false
       - key: PASSPORT_SIGNING_PRIVATE_KEY_B64
