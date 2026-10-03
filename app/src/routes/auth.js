@@ -4,6 +4,7 @@ const rateLimit = require('express-rate-limit');
 const db = require('../db');
 const auditLog = require('../services/auditLog');
 const mfa = require('../services/mfa');
+const provisioning = require('../services/provisioning');
 const { requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
@@ -74,6 +75,44 @@ router.post('/verify-mfa', loginLimiter, (req, res) => {
   req.session.userId = user.id;
   auditLog.log(db, { actorUserId: user.id, action: usedRecoveryCode ? 'login_succeeded_mfa_recovery_code' : 'login_succeeded_mfa' });
   res.json({ user: publicUser(user), usedRecoveryCode });
+});
+
+// Self-serve signup -- deliberately separate from the SSO flow (services/sso.js),
+// which by design never auto-provisions an account on first login. This is
+// the one path that actually creates a brand-new organization from a public
+// request with no prior session, matching the Agentic Automation
+// Architecture's self-serve funnel (Part V). Shares creation logic with the
+// internal, server-to-server provisioning endpoint (routes/internal.js) via
+// services/provisioning.js so there is exactly one way a new org is created.
+router.post('/signup', loginLimiter, (req, res) => {
+  const { companyName, email, password, fullName } = req.body || {};
+  if (!companyName || !email || !password) {
+    return res.status(400).json({ error: 'company_name_email_and_password_required' });
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email))) {
+    return res.status(400).json({ error: 'invalid_email' });
+  }
+  if (String(password).length < 10) {
+    return res.status(400).json({ error: 'password_too_short', minLength: 10 });
+  }
+
+  let provisioned;
+  try {
+    provisioned = provisioning.createOrgAndAdmin(db, { companyName, email, password, fullName });
+  } catch (err) {
+    if (err.code === 'email_already_registered') {
+      return res.status(409).json({ error: 'email_already_registered' });
+    }
+    throw err;
+  }
+
+  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(provisioned.userId);
+  req.session.regenerate((err) => {
+    if (err) return res.status(500).json({ error: 'session_error' });
+    req.session.userId = user.id;
+    auditLog.log(db, { actorUserId: user.id, action: 'signup_succeeded' });
+    res.status(201).json({ user: publicUser(user), orgId: provisioned.orgId, scopeId: provisioned.scopeId });
+  });
 });
 
 router.post('/logout', requireAuth, (req, res) => {

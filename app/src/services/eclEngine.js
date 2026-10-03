@@ -61,12 +61,12 @@ function syncConnector(db, { connector, controls, actorUserId, liveEvaluations =
     VALUES (?, ?, ?, ?, ?, ?, ?, '1.0', NULL, 'approved', datetime('now'))
   `);
   const upsertClaim = db.prepare(`
-    INSERT INTO assurance_claims (scope_id, control_id, verification_id, status, ecl, coverage_pct, valid_from, valid_until, signature, revoked)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
+    INSERT INTO assurance_claims (scope_id, control_id, verification_id, status, ecl, coverage_pct, valid_from, valid_until, signature, provenance, revoked)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
     ON CONFLICT(scope_id, control_id) DO UPDATE SET
       verification_id=excluded.verification_id, status=excluded.status, ecl=excluded.ecl,
       coverage_pct=excluded.coverage_pct, valid_from=excluded.valid_from, valid_until=excluded.valid_until,
-      signature=excluded.signature, revoked=0, revoked_at=NULL, revoked_reason=NULL, updated_at=datetime('now')
+      signature=excluded.signature, provenance=excluded.provenance, revoked=0, revoked_at=NULL, revoked_reason=NULL, updated_at=datetime('now')
   `);
   const findOpenRemediation = db.prepare(`SELECT id FROM remediation_items WHERE scope_id=? AND control_id=? AND status='open'`);
   const insertRemediation = db.prepare(`
@@ -82,6 +82,7 @@ function syncConnector(db, { connector, controls, actorUserId, liveEvaluations =
   `);
 
   const evidenceSource = liveEvaluations ? `${connector.connector_type}:live_microsoft_graph` : connector.connector_type;
+  const provenance = liveEvaluations ? 'connector_live' : 'connector_simulated';
 
   for (const control of controls) {
     const evalResult = liveEvaluations ? liveEvaluations[control.code] : evaluate(control.code, config);
@@ -108,7 +109,7 @@ function syncConnector(db, { connector, controls, actorUserId, liveEvaluations =
     const claimPayload = { scope_id: connector.scope_id, control: control.code, status, ecl, coverage_pct, valid_from: validFrom, valid_until: validUntil };
     const signature = signing.sign(claimPayload);
 
-    upsertClaim.run(connector.scope_id, control.id, verId, status, ecl, coverage_pct, validFrom, validUntil, signature);
+    upsertClaim.run(connector.scope_id, control.id, verId, status, ecl, coverage_pct, validFrom, validUntil, signature, provenance);
 
     if (status === 'verified') {
       closeRemediationIfResolved.run(connector.scope_id, control.id);
@@ -143,12 +144,12 @@ function recordOperationalTest(db, { scopeId, controls, actorUserId, testType, p
     VALUES (?, ?, ?, 4, ?, ?, ?, '1.0', 'approved', datetime('now'))
   `);
   const upsertClaim = db.prepare(`
-    INSERT INTO assurance_claims (scope_id, control_id, verification_id, status, ecl, coverage_pct, valid_from, valid_until, signature, revoked)
-    VALUES (?, ?, ?, ?, 4, ?, ?, ?, ?, 0)
+    INSERT INTO assurance_claims (scope_id, control_id, verification_id, status, ecl, coverage_pct, valid_from, valid_until, signature, provenance, revoked)
+    VALUES (?, ?, ?, ?, 4, ?, ?, ?, ?, 'human_verified', 0)
     ON CONFLICT(scope_id, control_id) DO UPDATE SET
       verification_id=excluded.verification_id, status=excluded.status, ecl=4,
       coverage_pct=excluded.coverage_pct, valid_from=excluded.valid_from, valid_until=excluded.valid_until,
-      signature=excluded.signature, revoked=0, revoked_at=NULL, revoked_reason=NULL, updated_at=datetime('now')
+      signature=excluded.signature, provenance='human_verified', revoked=0, revoked_at=NULL, revoked_reason=NULL, updated_at=datetime('now')
   `);
 
   const results = [];

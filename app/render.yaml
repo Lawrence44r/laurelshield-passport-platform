@@ -1,0 +1,35 @@
+# Render Blueprint for the Passport Platform. In the Render dashboard:
+# New -> Blueprint -> connect this repo -> Render reads this file and
+# pre-fills the service for you. No secret values live in this file --
+# everything marked `sync: false` must be set once in the dashboard after
+# the service is created (Settings -> Environment).
+#
+# IMPORTANT -- read before deploying: the `starter` plan below includes a
+# small persistent disk mounted at /app/data, because this app stores its
+# SQLite database as a single file on disk (better-sqlite3). The Render
+# `free` plan has NO persistent disk -- every deploy or restart would
+# silently wipe the database, including any real customer signups. Do not
+# downgrade to `free` for anything beyond a disposable demo.
+services:
+  - type: web
+    name: laurelshield-passport-platform
+    runtime: node
+    plan: starter
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    disk:
+      name: passport-platform-data
+      mountPath: /app/data
+      sizeGB: 1
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DB_PATH
+        value: /app/data/laurelshield.db
+      - key: SESSION_SECRET
+        sync: false
+      - key: PASSPORT_SIGNING_PRIVATE_KEY_B64
+        sync: false
+      - key: PROVISION_WEBHOOK_SECRET
+        sync: false

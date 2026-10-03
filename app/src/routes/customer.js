@@ -295,11 +295,21 @@ router.post('/scopes/:scopeId/passports', loadOwnedScope(), (req, res) => {
   const issuedAt = new Date().toISOString();
   const payload = { passportCode, orgId: req.user.org_id, scopeId: req.scope.id, status, issuedAt };
   const signature = signing.sign(payload);
+  // Agentic Automation Architecture, Part 0: every org's FIRST issued
+  // passport is flagged pending human verification, regardless of whether
+  // the org signed up self-serve or was manually recruited. Once this org
+  // has ever had a passport a human actually verified, later passports are
+  // not re-flagged.
+  const alreadyEstablished = db.prepare(
+    'SELECT COUNT(*) n FROM passports WHERE org_id=? AND verified_at IS NOT NULL'
+  ).get(req.user.org_id).n > 0;
+  const pendingHumanVerification = alreadyEstablished ? 0 : 1;
   const info = db.prepare(`
-    INSERT INTO passports (passport_code, org_id, scope_id, status, issued_at, signature) VALUES (?, ?, ?, ?, ?, ?)
-  `).run(passportCode, req.user.org_id, req.scope.id, status, issuedAt, signature);
-  auditLog.log(db, { actorUserId: req.user.id, action: 'passport_issued', resourceType: 'passport', resourceId: info.lastInsertRowid, details: { status } });
-  res.status(201).json({ id: info.lastInsertRowid, passportCode, status });
+    INSERT INTO passports (passport_code, org_id, scope_id, status, issued_at, signature, pending_human_verification)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `).run(passportCode, req.user.org_id, req.scope.id, status, issuedAt, signature, pendingHumanVerification);
+  auditLog.log(db, { actorUserId: req.user.id, action: 'passport_issued', resourceType: 'passport', resourceId: info.lastInsertRowid, details: { status, pendingHumanVerification: !!pendingHumanVerification } });
+  res.status(201).json({ id: info.lastInsertRowid, passportCode, status, pendingHumanVerification: !!pendingHumanVerification });
 });
 
 router.get('/passports', (req, res) => {
@@ -311,7 +321,7 @@ router.get('/passports/:id', (req, res) => {
   const passport = db.prepare('SELECT * FROM passports WHERE id=? AND org_id=?').get(req.params.id, req.user.org_id);
   if (!passport) return res.status(404).json({ error: 'not_found' });
   const claims = db.prepare(`
-    SELECT c.code, c.domain, c.title, c.severity, ac.status, ac.ecl, ac.coverage_pct, ac.valid_from, ac.valid_until
+    SELECT c.code, c.domain, c.title, c.severity, ac.status, ac.ecl, ac.coverage_pct, ac.valid_from, ac.valid_until, ac.provenance
     FROM assurance_claims ac JOIN controls c ON c.id = ac.control_id
     WHERE ac.scope_id = ? ORDER BY c.domain, c.code
   `).all(passport.scope_id);

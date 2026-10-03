@@ -12,6 +12,7 @@ const customerRoutes = require('./routes/customer');
 const opsRoutes = require('./routes/ops');
 const brokerRoutes = require('./routes/broker');
 const carrierRoutes = require('./routes/carrier');
+const internalRoutes = require('./routes/internal');
 
 const app = express();
 const PORT = process.env.PORT || 4100;
@@ -41,6 +42,13 @@ app.use('/api/customer', customerRoutes);
 app.use('/api/ops', opsRoutes);
 app.use('/api/broker', brokerRoutes);
 app.use('/api/carrier', carrierRoutes);
+// Server-to-server only -- not session-authenticated, see routes/internal.js.
+app.use('/internal', internalRoutes);
+
+// Render (and any other host) health check -- unauthenticated by design.
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', uptime: process.uptime() });
+});
 
 app.use(express.static(path.join(__dirname, '..', 'public')));
 

@@ -18,10 +18,38 @@ router.get('/dashboard', (req, res) => {
     scopes: db.prepare(`SELECT COUNT(*) n FROM scopes`).get().n,
     passports: db.prepare(`SELECT COUNT(*) n FROM passports WHERE revoked=0`).get().n,
     pendingVerifications: db.prepare(`SELECT COUNT(*) n FROM verifications WHERE decision_status='pending'`).get().n,
+    pendingPassportVerifications: db.prepare(`SELECT COUNT(*) n FROM passports WHERE pending_human_verification=1 AND revoked=0`).get().n,
     reverificationQueue: db.prepare(`SELECT COUNT(*) n FROM remediation_items WHERE status='reverification_pending'`).get().n,
     openAppeals: db.prepare(`SELECT COUNT(*) n FROM appeals WHERE status IN ('open','under_review')`).get().n,
   };
   res.json({ counts });
+});
+
+// ---- First-passport human verification (Agentic Automation Architecture,
+// Part 0): every organization's first issued passport is flagged on
+// creation (see routes/customer.js) regardless of how the org signed up --
+// self-serve or manually recruited. This is the one gate a self-serve
+// funnel is not allowed to skip. Clearing it is a deliberate human action,
+// never automatic.
+router.get('/passports/pending-verification', (req, res) => {
+  const rows = db.prepare(`
+    SELECT p.id, p.passport_code, p.org_id, o.name AS org_name, p.status, p.issued_at
+    FROM passports p JOIN organizations o ON o.id = p.org_id
+    WHERE p.pending_human_verification = 1 AND p.revoked = 0
+    ORDER BY p.issued_at ASC
+  `).all();
+  res.json({ items: rows });
+});
+
+router.post('/passports/:id/verify', requireRole('ls_assessor', 'ls_decision_officer', 'ls_admin'), (req, res) => {
+  const passport = db.prepare('SELECT * FROM passports WHERE id=?').get(req.params.id);
+  if (!passport) return res.status(404).json({ error: 'not_found' });
+  if (!passport.pending_human_verification) return res.status(409).json({ error: 'already_verified' });
+
+  db.prepare(`UPDATE passports SET pending_human_verification=0, verified_at=datetime('now'), verified_by=? WHERE id=?`)
+    .run(req.user.id, passport.id);
+  auditLog.log(db, { actorUserId: req.user.id, action: 'passport_human_verified', resourceType: 'passport', resourceId: passport.id });
+  res.json({ ok: true });
 });
 
 // ---- Verification queue: assess (ls_assessor) then decide (ls_decision_officer) ----
@@ -72,12 +100,12 @@ router.post('/verifications/:id/decide', requireRole('ls_decision_officer', 'ls_
     const validUntil = new Date(Date.now() + control.max_evidence_age_hours * 3600 * 1000).toISOString();
     const signature = signing.sign({ scope_id: v.scope_id, control: control.code, status, ecl: v.ecl, coverage_pct: v.coverage_pct, valid_from: validFrom, valid_until: validUntil });
     db.prepare(`
-      INSERT INTO assurance_claims (scope_id, control_id, verification_id, status, ecl, coverage_pct, valid_from, valid_until, signature, revoked)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
+      INSERT INTO assurance_claims (scope_id, control_id, verification_id, status, ecl, coverage_pct, valid_from, valid_until, signature, provenance, revoked)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'human_verified', 0)
       ON CONFLICT(scope_id, control_id) DO UPDATE SET
         verification_id=excluded.verification_id, status=excluded.status, ecl=excluded.ecl, coverage_pct=excluded.coverage_pct,
         valid_from=excluded.valid_from, valid_until=excluded.valid_until, signature=excluded.signature,
-        revoked=0, revoked_at=NULL, revoked_reason=NULL, updated_at=datetime('now')
+        provenance='human_verified', revoked=0, revoked_at=NULL, revoked_reason=NULL, updated_at=datetime('now')
     `).run(v.scope_id, v.control_id, v.id, status, v.ecl, v.coverage_pct, validFrom, validUntil, signature);
   }
 
@@ -114,12 +142,12 @@ router.post('/reverification/:id/close', requireRole('ls_assessor', 'ls_decision
     VALUES (?, ?, ?, 2, 100, 'effective', ?, 'approved', datetime('now'))
   `).run(item.scope_id, item.control_id, req.user.id, req.user.id).lastInsertRowid;
   db.prepare(`
-    INSERT INTO assurance_claims (scope_id, control_id, verification_id, status, ecl, coverage_pct, valid_from, valid_until, signature, revoked)
-    VALUES (?, ?, ?, 'verified', 2, 100, ?, ?, ?, 0)
+    INSERT INTO assurance_claims (scope_id, control_id, verification_id, status, ecl, coverage_pct, valid_from, valid_until, signature, provenance, revoked)
+    VALUES (?, ?, ?, 'verified', 2, 100, ?, ?, ?, 'human_verified', 0)
     ON CONFLICT(scope_id, control_id) DO UPDATE SET
       verification_id=excluded.verification_id, status='verified', ecl=2, coverage_pct=100,
       valid_from=excluded.valid_from, valid_until=excluded.valid_until, signature=excluded.signature,
-      revoked=0, revoked_at=NULL, revoked_reason=NULL, updated_at=datetime('now')
+      provenance='human_verified', revoked=0, revoked_at=NULL, revoked_reason=NULL, updated_at=datetime('now')
   `).run(item.scope_id, item.control_id, verId, validFrom, validUntil, signature);
   db.prepare(`UPDATE remediation_items SET status='closed', closed_at=datetime('now'), reverified_by=? WHERE id=?`).run(req.user.id, item.id);
 

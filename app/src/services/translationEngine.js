@@ -24,6 +24,11 @@ function translateForPartner(db, { partnerId, scopeId }) {
 
   let weightedEarned = 0, weightedTotal = 0;
   let materialGaps = 0, conditionalCount = 0, expiringSoonCount = 0;
+  // Disclosure, not just an internal log (Agentic Automation Architecture,
+  // Part VI item 2): a broker/carrier relying on a result has a legitimate
+  // interest in knowing whether it came from a human assessor, a live
+  // connector, or a simulated one -- never from carrier_requirements itself.
+  const provenanceSummary = { human_verified: 0, connector_live: 0, connector_simulated: 0, no_evidence: 0 };
 
   const items = requirements.map(req => {
     const claim = claimByControl.get(req.control_id);
@@ -43,6 +48,7 @@ function translateForPartner(db, { partnerId, scopeId }) {
     if (result === 'Conditional') conditionalCount++;
     if (result === 'Evidence Expiring') expiringSoonCount++;
     weightedTotal += req.weight;
+    provenanceSummary[claim ? claim.provenance : 'no_evidence']++;
 
     return {
       requirement_label: req.requirement_label,
@@ -50,6 +56,7 @@ function translateForPartner(db, { partnerId, scopeId }) {
       control_title: req.control_title,
       result,
       evidence_note: claim ? `ECL-${claim.ecl}, ${Math.round(claim.coverage_pct)}% coverage` : 'No evidence on file',
+      provenance: claim ? claim.provenance : 'no_evidence',
     };
   });
 
@@ -60,7 +67,7 @@ function translateForPartner(db, { partnerId, scopeId }) {
   else if (conditionalCount > 0) overallStatus = 'Conditional';
   else overallStatus = 'Ready';
 
-  return { overallStatus, readinessScore, items, materialGaps, conditionalCount, expiringSoonCount };
+  return { overallStatus, readinessScore, items, materialGaps, conditionalCount, expiringSoonCount, provenanceSummary };
 }
 
 // ---- Carrier Requirements Graph governance (ls_admin only, Section 12.11) ----

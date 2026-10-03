@@ -323,6 +323,13 @@ const MIGRATIONS = [
   `ALTER TABLE users ADD COLUMN mfa_secret TEXT`,
   `ALTER TABLE users ADD COLUMN mfa_enabled INTEGER NOT NULL DEFAULT 0`,
   `ALTER TABLE users ADD COLUMN mfa_recovery_codes TEXT`,
+  // Claim/passport provenance -- who or what actually asserted a claim, and
+  // whether a brand-new organization's first passport has been looked at by
+  // a human yet. See services/eclEngine.js, routes/ops.js, routes/customer.js.
+  `ALTER TABLE assurance_claims ADD COLUMN provenance TEXT NOT NULL DEFAULT 'human_verified' CHECK (provenance IN ('human_verified','connector_live','connector_simulated'))`,
+  `ALTER TABLE passports ADD COLUMN pending_human_verification INTEGER NOT NULL DEFAULT 1`,
+  `ALTER TABLE passports ADD COLUMN verified_at TEXT`,
+  `ALTER TABLE passports ADD COLUMN verified_by INTEGER REFERENCES users(id)`,
 ];
 
 function applySchema(db) {
