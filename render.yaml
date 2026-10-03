@@ -43,6 +43,14 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      # Pinned to the exact version this app was built and tested against
+      # all session (local Node v24.14.1, zero crashes). Without this,
+      # Render picks its own default Node version, which may not match
+      # what better-sqlite3's native binary expects -- a likely cause of
+      # the "Assertion failed" native crash seen in the first deploy
+      # attempt. NODE_VERSION takes precedence over any other mechanism.
+      - key: NODE_VERSION
+        value: 24.14.1
       - key: DB_PATH
         value: ./data/laurelshield.db
       - key: SESSION_SECRET
