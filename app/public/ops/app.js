@@ -86,7 +86,7 @@ async function init() {
 async function renderDashboard() {
   const el = document.getElementById('sec-dashboard');
   const { counts } = await api('/api/ops/dashboard');
-  el.innerHTML = `<h1>Assurance Operations Dashboard</h1>
+  el.innerHTML = `<h1>InsurabilityOS&trade; <small class="brand-tag">Assurance Operations Dashboard</small></h1>
     <p class="muted">Governance separates evidence collection from remediation and remediation from the certification decision (Section 4.1, 10.1). Your role: <b>${state.user.role.replace('ls_', '').replace('_', ' ')}</b>.</p>
 
     <div class="section-label">Quick Actions</div>
@@ -191,7 +191,7 @@ async function renderReverification() {
 async function renderAppeals() {
   const el = document.getElementById('sec-appeals');
   const { appeals } = await api('/api/ops/appeals');
-  el.innerHTML = `<h1>Appeals</h1>
+  el.innerHTML = `<h1>LaurelRecourse&trade; <small class="brand-tag">Appeals</small></h1>
     <p class="muted">Section 10.2: independent review of contested verification decisions.</p>
     <div class="table-wrap"><table>
       <tr><th>Org</th><th>Reason</th><th>Status</th><th></th></tr>
@@ -214,7 +214,7 @@ async function renderAppeals() {
 async function renderPartners() {
   const el = document.getElementById('sec-partners');
   el.innerHTML = `<h1>InsurGraph&trade; <small class="brand-tag">Partners &amp; Underwriting Requirements Graph</small></h1>
-    <p class="muted callout warn">Confidential (Section 5.6, 12.11). Requirement weights and minimum ECL thresholds are Congruentshield trade secrets, never exposed to customers, brokers, or other carriers via any API response.</p>
+    <p class="muted callout warn">Confidential (Section 5.6, 12.11). Requirement weights and minimum ECL thresholds are Laurelshield trade secrets, never exposed to customers, brokers, or other carriers via any API response.</p>
     ${can('admin') ? `<div class="card"><h3>Register New Partner</h3>
       <form id="partnerForm">
         <div class="field-row">
@@ -293,7 +293,7 @@ async function renderPartners() {
 async function renderSupplierConcentration() {
   const el = document.getElementById('sec-suppliers');
   const { report } = await api('/api/ops/suppliers/concentration');
-  el.innerHTML = `<h1>AssureGraph&trade; <small class="brand-tag">Supplier Concentration Report</small></h1>
+  el.innerHTML = `<h1>LaurelSignal&trade; <small class="brand-tag">Supplier Concentration Report</small></h1>
     <p class="muted">Ops Guide Section 8: flags a supplier when more than one insured depends on it, since the same outage or breach then becomes a multi-policy loss event. Generated weekly during the pilot.</p>
     <div class="table-wrap"><table>
       <tr><th>Supplier</th><th>Insureds</th><th>Highest Criticality</th><th>Detail</th></tr>
@@ -309,7 +309,7 @@ async function renderSupplierConcentration() {
 async function renderClaims() {
   const el = document.getElementById('sec-claims');
   const { claims } = await api('/api/ops/claims');
-  el.innerHTML = `<h1>Claim Evidence Pack Workflow</h1>
+  el.innerHTML = `<h1>ControlLedger&trade; <small class="brand-tag">Claim Evidence Pack Workflow</small></h1>
     <p class="muted">Ops Guide Section 10: freeze the evidence window around an incident, seal a hash-chained manifest, require reviewer approval, then release to the carrier. Lifecycle: open → evidence frozen/pack generated → approved → released.</p>
     ${can('claimCreate') ? `<div class="card"><h3>Create Claim</h3>
       <form id="claimForm">
@@ -393,7 +393,7 @@ async function renderCatalogue() {
   const el = document.getElementById('sec-catalogue');
   const byDomain = {};
   state.controlsCatalog.forEach(c => { (byDomain[c.domain] = byDomain[c.domain] || []).push(c); });
-  el.innerHTML = `<h1>Canonical Control Catalogue</h1>
+  el.innerHTML = `<h1>LaurelVault&trade; <small class="brand-tag">Canonical Control Catalogue</small></h1>
     <p class="muted">Published assurance standard (Section 5.5, 11.3): vendor-neutral, stable identifiers. Not confidential.</p>
     ${Object.entries(byDomain).map(([domain, rows]) => `
       <div class="card"><h3>${domain}</h3>
@@ -404,8 +404,8 @@ async function renderCatalogue() {
 
 async function renderDemo() {
   const el = document.getElementById('sec-demo');
-  if (!can('admin')) { el.innerHTML = '<h1>LaurelGuard&trade; <small class="brand-tag">Continuous Assurance Tools</small></h1><div class="empty-state">Administrator role required.</div>'; return; }
-  el.innerHTML = `<h1>LaurelGuard&trade; <small class="brand-tag">Continuous Assurance Tools</small></h1>
+  if (!can('admin')) { el.innerHTML = '<h1>LaurelAssure&trade; <small class="brand-tag">Continuous Assurance Tools</small></h1><div class="empty-state">Administrator role required.</div>'; return; }
+  el.innerHTML = `<h1>LaurelAssure&trade; <small class="brand-tag">Continuous Assurance Tools</small></h1>
     <p class="muted">Section 5.9, 11: demo/testing utilities to exercise the freshness engine without waiting in real time.</p>
     <div class="card">
       <h3>Run Global Freshness Sweep</h3>
@@ -535,7 +535,7 @@ function renderRecoveryCodes(codes) {
 const HELP_TOPICS = [
   {
     key: 'dashboard', icon: 'dashboard', title: 'Dashboard',
-    purpose: 'A portfolio-wide snapshot across every customer organization Congruentshield assures, plus quick access to your own working queues.',
+    purpose: 'A portfolio-wide snapshot across every customer organization Laurelshield assures, plus quick access to your own working queues.',
     sees: [
       'Quick Actions: one-click tiles to every queue and tool.',
       'Portfolio Summary: customer organizations, assurance boundaries, active passports, pending verifications, re-verification queue, and open appeals.',
@@ -571,7 +571,7 @@ const HELP_TOPICS = [
     warning: 'This queue exists specifically to prevent self-graded remediation. Someone independent of the original fix must confirm it, every time, even when it looks routine.',
   },
   {
-    key: 'appeals', icon: 'appeal', title: 'Appeals',
+    key: 'appeals', icon: 'appeal', title: 'LaurelRecourse&trade; (Appeals)',
     purpose: 'Independent review when a customer disagrees with a verification decision.',
     steps: [
       'Read the customer\'s stated reason and the original verification it references.',
@@ -581,8 +581,8 @@ const HELP_TOPICS = [
   },
   {
     key: 'partners', icon: 'partners', title: 'InsurGraph&trade; (Partners &amp; Requirements Graph)',
-    purpose: 'The confidential Carrier Requirements Graph: Congruentshield\'s highest-value trade secret. Administrator access only.',
-    sees: ['Registered broker and carrier partners.', 'For each, the mapping from their own proprietary question wording to Congruentshield\'s canonical controls, with minimum ECL, weight, mandatory flag, and source classification.'],
+    purpose: 'The confidential Carrier Requirements Graph: Laurelshield\'s highest-value trade secret. Administrator access only.',
+    sees: ['Registered broker and carrier partners.', 'For each, the mapping from their own proprietary question wording to Laurelshield\'s canonical controls, with minimum ECL, weight, mandatory flag, and source classification.'],
     steps: [
       'Register a new partner with Create Partner (name and type).',
       'Add a requirement mapping: the partner\'s own requirement code and label, the canonical control it maps to, minimum ECL, maximum evidence age, whether it\'s mandatory, its weight, and how the weighting was sourced.',
@@ -590,13 +590,13 @@ const HELP_TOPICS = [
     warning: 'These weights, thresholds, and confidential notes must never appear in any customer-, broker-, or carrier-facing response. Only the translation engine\'s output (Pass, Conditional, Evidence Expiring, or Material Gap) is ever exposed externally. If you are ever unsure whether a field is safe to expose, assume it is not.',
   },
   {
-    key: 'suppliers', icon: 'suppliers', title: 'AssureGraph&trade; (Supplier Concentration)',
+    key: 'suppliers', icon: 'suppliers', title: 'LaurelSignal&trade; (Supplier Concentration)',
     purpose: 'A portfolio-wide view of which suppliers serve more than one insured, flagging multi-policy loss exposure.',
     sees: ['Every supplier registered by any customer, with insured count, highest criticality, and the detail of which organizations depend on it.'],
     steps: ['Review this weekly.', 'Escalate any newly flagged concentration risk (a supplier now serving two or more insureds) to the relevant underwriting contact.'],
   },
   {
-    key: 'claims', icon: 'claims', title: 'Claims',
+    key: 'claims', icon: 'claims', title: 'ControlLedger&trade; (Claims)',
     purpose: 'The claim evidence pack workflow: freeze a window around an incident, seal a tamper-evident manifest, and release it to the carrier handling the claim.',
     steps: [
       'Create Claim: scope, policy reference, incident date, affected business process and systems.',
@@ -607,12 +607,12 @@ const HELP_TOPICS = [
     warning: 'Approval and release are Decision Officer/Admin-only, for the same separation-of-duties reason as verification. Whoever sealed the pack should not be the only person who decides it is ready to release.',
   },
   {
-    key: 'catalogue', icon: 'catalogue', title: 'Controls Catalogue',
-    purpose: 'The published, vendor-neutral canonical control standard, organized by domain. Not confidential, this is Congruentshield\'s public assurance standard.',
-    tip: 'When a customer asks "why does this control exist," this screen has the objective and test procedure in Congruentshield\'s own words, useful to quote back to them directly.',
+    key: 'catalogue', icon: 'catalogue', title: 'LaurelVault&trade; (Controls Catalogue)',
+    purpose: 'The published, vendor-neutral canonical control standard, organized by domain. Not confidential, this is Laurelshield\'s public assurance standard.',
+    tip: 'When a customer asks "why does this control exist," this screen has the objective and test procedure in Laurelshield\'s own words, useful to quote back to them directly.',
   },
   {
-    key: 'demo', icon: 'assurance', title: 'LaurelGuard&trade; (Continuous Assurance Tools)',
+    key: 'demo', icon: 'assurance', title: 'LaurelAssure&trade; (Continuous Assurance Tools)',
     purpose: 'Administrator-only utilities to exercise the freshness engine without waiting in real time.',
     steps: [
       'Run Global Freshness Sweep: expires any assurance claim whose evidence has aged past its control\'s freshness window, across the whole platform.',

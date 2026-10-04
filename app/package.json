@@ -1,8 +1,8 @@
 {
-  "name": "congruentshield-passport-platform",
+  "name": "laurelshield-passport-platform",
   "version": "0.1.0",
   "private": true,
-  "description": "Congruentshield Cyber Risk Passport Platform - evidence verification, ECL scoring, canonical control mapping, carrier translation, and portable passport issuance.",
+  "description": "Laurelshield Cyber Risk Passport Platform - evidence verification, ECL scoring, canonical control mapping, carrier translation, and portable passport issuance.",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",

@@ -26,7 +26,7 @@ const MAX_NAME_LENGTH = 200;
 // repo and would otherwise be a plausible first guess against a real account.
 const WEAK_PASSWORDS = new Set([
   'passport#2026', 'passport2026', 'password12345', 'password123456',
-  'qwertyuiop123', 'congruentshield123', 'changeme123456',
+  'qwertyuiop123', 'laurelshield123', 'changeme123456',
 ]);
 
 function emailTaken(db, email) {
@@ -55,7 +55,7 @@ function validateInput({ companyName, email, password }) {
   return null;
 }
 
-function createOrgAndAdmin(db, { companyName, email, password, fullName, jurisdiction, actorLabel, requestMeta }) {
+function createOrgAndAdmin(db, { companyName, email, password, fullName, jurisdiction, industry, companySize, actorLabel, requestMeta }) {
   const validationError = validateInput({ companyName, email, password });
   if (validationError) {
     throw Object.assign(new Error(validationError), { code: validationError });
@@ -72,9 +72,10 @@ function createOrgAndAdmin(db, { companyName, email, password, fullName, jurisdi
     throw Object.assign(new Error('company_name_email_and_password_required'), { code: 'company_name_email_and_password_required' });
   }
 
+  const safeIndustry = industry ? sanitizeName(industry) : null;
   const orgInfo = db.prepare(
-    `INSERT INTO organizations (org_type, name, jurisdiction) VALUES ('customer', ?, ?)`
-  ).run(safeCompanyName, jurisdiction || 'CA');
+    `INSERT INTO organizations (org_type, name, industry, jurisdiction) VALUES ('customer', ?, ?, ?)`
+  ).run(safeCompanyName, safeIndustry, jurisdiction || 'CA');
   const orgId = orgInfo.lastInsertRowid;
 
   // Same scope_code convention as the existing authenticated POST /scopes
@@ -96,7 +97,7 @@ function createOrgAndAdmin(db, { companyName, email, password, fullName, jurisdi
     action: 'org_provisioned',
     resourceType: 'organization',
     resourceId: orgId,
-    details: { companyName: safeCompanyName, scopeId, userId, ...(requestMeta || {}) },
+    details: { companyName: safeCompanyName, industry: safeIndustry, companySize: companySize || null, scopeId, userId, ...(requestMeta || {}) },
   });
 
   return { orgId, scopeId, userId, email: normalizedEmail };

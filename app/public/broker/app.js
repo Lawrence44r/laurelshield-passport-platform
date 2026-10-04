@@ -49,7 +49,7 @@ const TRIGGER_LABELS = {
 async function renderPortfolio() {
   const el = document.getElementById('sec-portfolio');
   const { portfolio } = await api('/api/broker/portfolio');
-  el.innerHTML = `<h1>Client Portfolio</h1>
+  el.innerHTML = `<h1>LaurelBook&trade; <small class="brand-tag">Client Portfolio</small></h1>
     <p class="muted">Passports your clients have authorized you to view (Stage 10). LaurelSignal&trade; referral triggers (Section 8.2) flag where a technical follow-up would help before submission.</p>
     <div class="section-label">Resources</div>
     ${portfolio.length ? portfolio.map(g => `
@@ -102,7 +102,7 @@ async function renderAccountSettings() {
 
     ${state.user.orgId ? `<div class="card">
       <h3>Single Sign-On</h3>
-      <p class="small muted">Let everyone at your organization sign in through your own identity provider (Okta, Microsoft Entra ID, Google Workspace, Ping, Auth0, or any other OpenID Connect provider) instead of a Congruentshield password.</p>
+      <p class="small muted">Let everyone at your organization sign in through your own identity provider (Okta, Microsoft Entra ID, Google Workspace, Ping, Auth0, or any other OpenID Connect provider) instead of a Laurelshield password.</p>
       <div id="ssoPanel"></div>
     </div>` : ''}`;
 
@@ -250,7 +250,7 @@ const HELP_TOPICS = [
     sees: [
       'Appearance: switch between Light and Dark. Saved to this browser only.',
       'Multi-Factor Authentication: enable a second factor using any TOTP authenticator app, see how many one-time recovery codes remain, disable MFA, or generate a fresh set of recovery codes.',
-      'Single Sign-On: configure your own identity provider so everyone at your brokerage signs in through it instead of a Congruentshield password.',
+      'Single Sign-On: configure your own identity provider so everyone at your brokerage signs in through it instead of a Laurelshield password.',
     ],
     steps: [
       'Open Account Settings from the gear icon next to Sign out, top right.',
@@ -260,7 +260,7 @@ const HELP_TOPICS = [
       'Under Single Sign-On, fill in your email domain, issuer URL, client ID, and client secret, then click Test Configuration before saving.',
     ],
     warning: 'Recovery codes are shown only once, at the moment they are generated. Store them somewhere safe.',
-    keypoint: 'Single sign-on signs in an existing Congruentshield account matched by email address, it does not create new accounts or grant roles on its own.',
+    keypoint: 'Single sign-on signs in an existing Laurelshield account matched by email address, it does not create new accounts or grant roles on its own.',
     tip: 'This login can see every client passport your brokerage has been authorized to view. Enable MFA before anything else on this list.',
   },
 ];

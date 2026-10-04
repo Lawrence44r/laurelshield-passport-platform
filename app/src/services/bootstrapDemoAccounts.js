@@ -9,7 +9,7 @@
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 
-const MARKER_EMAIL = 'ops@congruentshield.internal';
+const MARKER_EMAIL = 'ops@laurelshield.internal';
 
 function randomPassword() {
   return crypto.randomBytes(12).toString('base64url'); // 16 chars, well above the 12-char minimum

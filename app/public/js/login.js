@@ -14,7 +14,7 @@ const ROLE_HOME = {
 // user in the Customer Portal, correctly.
 const PORTAL_COPY = {
   customer: { title: 'Sign in to your Customer Portal', subtitle: 'For the organization being assessed: register scope, connect evidence, and manage your Cyber Risk Passport.' },
-  ops: { title: 'Sign in to Assurance Operations', subtitle: 'For Congruentshield staff: verification, re-verification, appeals, and the carrier requirements graph.' },
+  ops: { title: 'Sign in to Assurance Operations', subtitle: 'For Laurelshield staff: verification, re-verification, appeals, and the carrier requirements graph.' },
   broker: { title: 'Sign in to your Broker Console', subtitle: 'For brokers: view client passports your customers have authorized you to see.' },
   carrier: { title: 'Sign in to your Carrier Console', subtitle: 'For carriers and underwriters: your translated portfolio view and released claim evidence packs.' },
 };
@@ -53,7 +53,7 @@ const SSO_ERRORS = {
   idp_unreachable: 'Could not reach your identity provider. Try again or use your password.',
   no_pending_login: 'Your sign-in session expired. Start again.',
   idp_exchange_failed: 'Your identity provider could not complete sign-in. Try again or use your password.',
-  no_account: 'Your identity provider authenticated you, but no Congruentshield account matches your email. Contact your administrator.',
+  no_account: 'Your identity provider authenticated you, but no Laurelshield account matches your email. Contact your administrator.',
   session_error: 'Something went wrong starting your session. Try again.',
 };
 (() => {
@@ -94,6 +94,51 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     window.location.href = ROLE_HOME[result.user.role] || '/index.html';
   } catch (e2) {
     document.getElementById('err').textContent = mfaInput ? 'Incorrect code. Try again.' : 'Invalid email or password.';
+  }
+});
+
+// Enterprise-grade self-serve signup -- only ever creates a customer_admin
+// account (matches services/provisioning.js), so it's only offered from the
+// login view, not gated behind which portal tab happens to be active.
+document.getElementById('showSignupLink').addEventListener('click', (e) => {
+  e.preventDefault();
+  document.getElementById('loginView').style.display = 'none';
+  document.getElementById('signupForm').style.display = 'block';
+  document.getElementById('suCompanyName').focus();
+});
+document.getElementById('showLoginLink').addEventListener('click', (e) => {
+  e.preventDefault();
+  document.getElementById('signupForm').style.display = 'none';
+  document.getElementById('loginView').style.display = 'block';
+  document.getElementById('email').focus();
+});
+
+document.getElementById('signupForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const errEl = document.getElementById('signupErr');
+  errEl.textContent = '';
+  const body = {
+    companyName: document.getElementById('suCompanyName').value.trim(),
+    fullName: document.getElementById('suFullName').value.trim(),
+    email: document.getElementById('suEmail').value.trim(),
+    password: document.getElementById('suPassword').value,
+    industry: document.getElementById('suIndustry').value || undefined,
+    companySize: document.getElementById('suCompanySize').value || undefined,
+    jurisdiction: document.getElementById('suJurisdiction').value,
+  };
+  const SIGNUP_ERRORS = {
+    company_name_email_and_password_required: 'Company name, email, and password are required.',
+    invalid_email: 'Enter a valid email address.',
+    password_too_short: 'Password must be at least 12 characters.',
+    password_too_common: 'That password is too easy to guess -- choose a less common one.',
+    email_already_registered: 'An account with that email already exists. Try signing in instead.',
+    too_many_signup_attempts: 'Too many signup attempts. Try again in an hour.',
+  };
+  try {
+    const { user } = await api('/api/auth/signup', { method: 'POST', body });
+    window.location.href = ROLE_HOME[user.role] || '/customer/index.html';
+  } catch (err) {
+    errEl.textContent = (err.data && SIGNUP_ERRORS[err.data.error]) || 'Could not create your account. Try again.';
   }
 });
 

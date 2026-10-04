@@ -49,7 +49,7 @@ function sha256(data) {
 }
 
 // Safe to publish -- this is what an external broker/carrier would hold to
-// verify a passport's signature themselves, without trusting Congruentshield's
+// verify a passport's signature themselves, without trusting Laurelshield's
 // servers at verification time.
 function getPublicKeyPem() {
   return publicKey().export({ type: 'spki', format: 'pem' }).toString();

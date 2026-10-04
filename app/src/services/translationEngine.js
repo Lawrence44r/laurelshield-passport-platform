@@ -1,5 +1,5 @@
 // Underwriting Requirements Graph + Market Readiness Translation
-// (Section 5.6, 6.3, Stage 6, 12.11). This is Congruentshield's highest-value
+// (Section 5.6, 6.3, Stage 6, 12.11). This is Laurelshield's highest-value
 // trade secret: cross-carrier mappings, minimum ECL thresholds, evidence
 // freshness windows, and weighting.
 //

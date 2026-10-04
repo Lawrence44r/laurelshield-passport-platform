@@ -108,12 +108,12 @@ const SIGNUP_ERROR_STATUS = {
 };
 
 router.post('/signup', signupLimiter, (req, res) => {
-  const { companyName, email, password, fullName } = req.body || {};
+  const { companyName, email, password, fullName, industry, jurisdiction, companySize } = req.body || {};
 
   let provisioned;
   try {
     provisioned = provisioning.createOrgAndAdmin(db, {
-      companyName, email, password, fullName,
+      companyName, email, password, fullName, industry, jurisdiction, companySize,
       actorLabel: 'system:self_serve_signup',
       requestMeta: { ip: req.ip },
     });

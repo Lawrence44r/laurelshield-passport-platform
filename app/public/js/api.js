@@ -79,3 +79,57 @@ function setTheme(theme) {
 function escapeHtml(s) {
   return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
+
+// Password visibility toggle -- auto-wires every input[type="password"]
+// anywhere on the page, including ones that don't exist yet at load time.
+// The customer/ops/broker/carrier apps re-render whole sections via
+// innerHTML constantly (new Client Secret fields, etc.), so a one-time
+// querySelectorAll at DOMContentLoaded would miss most of them; a
+// MutationObserver means no render function anywhere has to remember to
+// call this.
+(function () {
+  const EYE_OPEN = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>';
+  const EYE_CLOSED = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3l18 18"/><path d="M10.6 10.6a3 3 0 0 0 4.2 4.2"/><path d="M6.1 6.1C3.6 7.9 2 10.5 1 12c0 0 4 7 11 7a10.6 10.6 0 0 0 4.9-1.2M9.9 4.2A11 11 0 0 1 12 4c7 0 11 7 11 7a13.3 13.3 0 0 1-3.4 4.1"/></svg>';
+
+  function wrapField(input) {
+    if (input.dataset.pwToggleWired) return;
+    if (!input.parentNode) return;
+    input.dataset.pwToggleWired = '1';
+    const wrap = document.createElement('span');
+    wrap.className = 'pw-toggle-wrap';
+    input.parentNode.insertBefore(wrap, input);
+    wrap.appendChild(input);
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'pw-toggle-btn';
+    btn.tabIndex = -1;
+    btn.setAttribute('aria-label', 'Show password');
+    btn.innerHTML = EYE_OPEN;
+    btn.addEventListener('click', () => {
+      const showing = input.type === 'text';
+      input.type = showing ? 'password' : 'text';
+      btn.innerHTML = showing ? EYE_OPEN : EYE_CLOSED;
+      btn.setAttribute('aria-label', showing ? 'Show password' : 'Hide password');
+    });
+    wrap.appendChild(btn);
+  }
+
+  function scan(root) {
+    if (!root.querySelectorAll) return;
+    root.querySelectorAll('input[type="password"]').forEach(wrapField);
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    scan(document);
+    if (!document.body) return;
+    new MutationObserver((mutations) => {
+      for (const m of mutations) {
+        m.addedNodes.forEach((node) => {
+          if (node.nodeType !== 1) return;
+          if (node.matches && node.matches('input[type="password"]')) wrapField(node);
+          else scan(node);
+        });
+      }
+    }).observe(document.body, { childList: true, subtree: true });
+  });
+})();

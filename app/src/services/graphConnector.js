@@ -1,7 +1,7 @@
 // Live Microsoft Graph evidence collector for the Entra identity connector
 // (Section 5.2, P0 priority: Microsoft Entra / Microsoft Graph). Uses the
 // app-only (client credentials) OAuth2 flow via MSAL Node - appropriate here
-// because Congruentshield reads tenant-wide directory/policy state on a
+// because Laurelshield reads tenant-wide directory/policy state on a
 // schedule, not on behalf of an interactively signed-in user.
 //
 // Required Microsoft Graph Application permissions (admin consent required):

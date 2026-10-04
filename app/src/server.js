@@ -64,5 +64,5 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Congruentshield Passport Platform listening on http://localhost:${PORT}`);
+  console.log(`Laurelshield Passport Platform listening on http://localhost:${PORT}`);
 });

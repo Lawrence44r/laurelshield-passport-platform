@@ -214,6 +214,17 @@ label { display: block; font-size: 12px; color: var(--ink-600); margin: 8px 0 3p
 .field-row { display: flex; gap: 12px; flex-wrap: wrap; }
 .field-row > div { flex: 1; min-width: 160px; }
 
+/* Password visibility toggle -- wrapper + button injected by js/api.js
+   around every input[type=password], wherever it's rendered. */
+.pw-toggle-wrap { position: relative; display: block; width: 100%; }
+.pw-toggle-wrap input[type=password], .pw-toggle-wrap input[type=text] { padding-right: 34px; }
+.pw-toggle-btn {
+  position: absolute; top: 50%; right: 6px; transform: translateY(-50%);
+  background: none; border: none; padding: 4px; margin: 0; cursor: pointer;
+  color: var(--ink-500); display: flex; align-items: center; justify-content: center;
+}
+.pw-toggle-btn:hover { color: var(--brand); }
+
 .callout { border-left: 4px solid var(--brand); background: var(--brand-tint); padding: 10px 14px; border-radius: 3px; margin-bottom: 14px; font-size: 13px; }
 .callout.warn { border-left-color: var(--warning); background: var(--warning-tint); }
 .callout.danger { border-left-color: var(--danger); background: var(--danger-tint); }
@@ -221,10 +232,10 @@ label { display: block; font-size: 12px; color: var(--ink-600); margin: 8px 0 3p
 /* ---- Login page: split panel, brand voice on one side, sign-in on the other ---- */
 .login-shell { min-height: 100vh; display: flex; }
 .login-hero {
-  flex: 1 1 55%; background: var(--chrome); color: var(--on-accent);
-  display: flex; align-items: center; justify-content: center; padding: 48px;
+  flex: 0 0 32%; background: var(--chrome); color: var(--on-accent);
+  display: flex; align-items: center; justify-content: center; padding: 32px 28px;
 }
-.hero-inner { max-width: 460px; }
+.hero-inner { max-width: 340px; }
 .login-hero img.logo { width: 56px; height: 56px; display: block; margin-bottom: 18px; }
 .login-hero .word { color: var(--on-accent); font-weight: 700; font-size: 30px; }
 .login-hero .tagline { color: #ffffff; font-size: 14px; margin: 6px 0 20px; font-weight: 600; }
@@ -233,7 +244,7 @@ label { display: block; font-size: 12px; color: var(--ink-600); margin: 8px 0 3p
 .hero-points li { position: relative; padding-left: 22px; font-size: 13px; color: #ffffff; line-height: 1.5; }
 .hero-points li::before { content: ""; position: absolute; left: 0; top: 5px; width: 8px; height: 8px; background: #ffffff; }
 
-.login-panel { flex: 1 1 45%; display: flex; align-items: center; justify-content: center; background: var(--ink-50); padding: 24px; }
+.login-panel { flex: 1 1 68%; display: flex; align-items: center; justify-content: center; background: var(--ink-50); padding: 24px; }
 .login-card { background: var(--paper); border: 1px solid var(--ink-100); border-radius: 8px; padding: 34px 36px; width: 380px; box-shadow: 0 4px 24px rgba(32,29,27,0.08); }
 .login-card h1 { margin-bottom: 2px; }
 .login-card .muted { margin-bottom: 20px; }

@@ -1,4 +1,4 @@
-<title>Congruentshield · Cyber Risk Passport Platform</title>
+<title>Laurelshield · Cyber Risk Passport Platform</title>
 <link rel="icon" type="image/png" href="/img/favicon-32.png">
 <link rel="apple-touch-icon" href="/img/favicon-180.png">
 <link rel="stylesheet" href="/css/style.css">
@@ -6,8 +6,8 @@
 <div class="login-shell">
   <div class="login-hero">
     <div class="hero-inner">
-      <img class="logo" src="/img/logo-topbar.png" alt="Congruentshield logo" />
-      <div class="word">Congruentshield</div>
+      <img class="logo" src="/img/logo-topbar.png" alt="Laurelshield logo" />
+      <div class="word">Laurelshield</div>
       <div class="tagline">Verify once. Demonstrate everywhere.</div>
       <p class="hero-lede">Enterprise cyber insurability assurance: evidence verification, canonical control mapping, and portable, signed Cyber Risk Passports for customers, brokers, and carriers.</p>
       <ul class="hero-points">
@@ -20,6 +20,7 @@
   </div>
   <div class="login-panel">
     <div class="login-card">
+      <div id="loginView">
       <div class="portal-tabs" id="portalTabs">
         <button type="button" class="tab active" data-portal="customer">Customer</button>
         <button type="button" class="tab" data-portal="ops">Assurance Operations</button>
@@ -38,13 +39,67 @@
       </form>
       <button type="button" class="btn secondary" id="ssoBtn" style="width:100%; margin-top:8px;">Continue with company SSO instead</button>
       <p class="small muted" style="margin-top:10px;">Enter your work email above, then use SSO if your organization has connected its own identity provider (Okta, Microsoft Entra ID, Google Workspace, and others). Otherwise sign in with your password as usual.</p>
+      <p class="small" id="signupToggleRow" style="margin-top:14px; text-align:center;">
+        New organization? <a href="#" id="showSignupLink">Create an account</a>
+      </p>
       <div class="demo-accounts">
         Demo accounts (password <code>Passport#2026</code>):<br>
         <span data-role="customer" class="active-role">Customer: <code>admin@abcmanufacturing.example</code> (fully verified) or <code>admin@meridianhealth.example</code> (sandbox)</span><br>
-        <span data-role="ops">Assurance Ops: <code>admin@congruentshield.internal</code>, <code>assessor@congruentshield.internal</code>, <code>decisions@congruentshield.internal</code></span><br>
+        <span data-role="ops">Assurance Ops: <code>admin@laurelshield.internal</code>, <code>assessor@laurelshield.internal</code>, <code>decisions@laurelshield.internal</code></span><br>
         <span data-role="broker">Broker: <code>broker@granitepeak.example</code></span><br>
         <span data-role="carrier">Carrier: <code>underwriter@northstar.example</code> or <code>underwriter@continental.example</code></span>
       </div>
+      </div>
+
+      <form id="signupForm" style="display:none;">
+        <h2 style="margin-top:0;">Create Your Organization's Account</h2>
+        <p class="muted small">Self-serve signup for the Customer Portal. Your first issued passport is reviewed by a Laurelshield assessor before it's ever shared with a broker or carrier -- that applies to every new account, regardless of how it was created.</p>
+        <label for="suCompanyName">Company name</label>
+        <input type="text" id="suCompanyName" required />
+        <label for="suFullName">Your full name</label>
+        <input type="text" id="suFullName" required />
+        <label for="suEmail">Work email</label>
+        <input type="email" id="suEmail" required autocomplete="username" />
+        <label for="suPassword">Password</label>
+        <input type="password" id="suPassword" required minlength="12" autocomplete="new-password" />
+        <p class="small muted" style="margin-top:2px;">At least 12 characters.</p>
+        <div class="field-row">
+          <div>
+            <label for="suIndustry">Industry</label>
+            <select id="suIndustry">
+              <option value="">Select...</option>
+              <option>Manufacturing</option>
+              <option>Healthcare</option>
+              <option>Financial Services</option>
+              <option>Professional Services</option>
+              <option>Retail / E-commerce</option>
+              <option>Technology</option>
+              <option>Logistics &amp; Warehousing</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div>
+            <label for="suCompanySize">Company size</label>
+            <select id="suCompanySize">
+              <option value="">Select...</option>
+              <option value="1-10">1-10 employees</option>
+              <option value="11-50">11-50 employees</option>
+              <option value="51-200">51-200 employees</option>
+              <option value="201-1000">201-1,000 employees</option>
+              <option value="1000+">1,000+ employees</option>
+            </select>
+          </div>
+        </div>
+        <label for="suJurisdiction">Primary jurisdiction</label>
+        <select id="suJurisdiction">
+          <option value="CA">Canada</option>
+          <option value="US">United States</option>
+          <option value="OTHER">Other</option>
+        </select>
+        <div class="err" id="signupErr"></div>
+        <button class="btn" type="submit" style="width:100%; margin-top:12px;">Create Account</button>
+        <p class="small" style="margin-top:10px; text-align:center;"><a href="#" id="showLoginLink">Back to sign in</a></p>
+      </form>
     </div>
   </div>
 </div>
