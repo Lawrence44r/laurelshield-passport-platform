@@ -10,6 +10,7 @@ const crypto = require('crypto');
 const rateLimit = require('express-rate-limit');
 const db = require('../db');
 const provisioning = require('../services/provisioning');
+const bootstrapDemoAccounts = require('../services/bootstrapDemoAccounts');
 
 const router = express.Router();
 
@@ -65,6 +66,16 @@ router.post('/provision-org', provisionLimiter, requireProvisionSecret, (req, re
   }
 
   res.status(201).json({ orgId: provisioned.orgId, scopeId: provisioned.scopeId, userId: provisioned.userId });
+});
+
+// One-time: creates the one role self-serve signup never can (ls_admin), plus
+// one broker and one carrier account, each with a freshly random password
+// returned exactly once in this response -- never the project's own public
+// demo password, never stored in plaintext anywhere. Safe to call repeatedly:
+// a no-op (alreadyDone: true) once it's run successfully once.
+router.post('/bootstrap-demo-accounts', provisionLimiter, requireProvisionSecret, (req, res) => {
+  const result = bootstrapDemoAccounts.bootstrap(db);
+  res.status(result.alreadyDone ? 200 : 201).json(result);
 });
 
 module.exports = router;
